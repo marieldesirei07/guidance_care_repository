@@ -3,20 +3,17 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-        public function up(): void
+    public function up(): void
     {
-        // SQLite-friendly: rebuild the table
         Schema::table('appointments', function (Blueprint $table) {
-            // Drop foreign key if exists - SQLite often ignores this
+            // Drop foreign key if exists
         });
 
-        DB::statement('CREATE TABLE appointments_temp AS SELECT * FROM appointments');
+        DB::statement('CREATE TABLE appointments_temp AS SELECT id, case_id, student_id, counselor_id, appointment_datetime, location, status, created_at, updated_at FROM appointments');
         Schema::drop('appointments');
 
         Schema::create('appointments', function (Blueprint $table) {
@@ -31,8 +28,8 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement('INSERT INTO appointments (id, case_id, student_id, counselor_id, appointment_datetime, location, purpose, status, created_at, updated_at)
-            SELECT id, case_id, student_id, counselor_id, appointment_datetime, location, purpose, status, created_at, updated_at FROM appointments_temp');
+        DB::statement('INSERT INTO appointments (id, case_id, student_id, counselor_id, appointment_datetime, location, status, created_at, updated_at)
+            SELECT id, case_id, student_id, counselor_id, appointment_datetime, location, status, created_at, updated_at FROM appointments_temp');
 
         Schema::drop('appointments_temp');
     }
