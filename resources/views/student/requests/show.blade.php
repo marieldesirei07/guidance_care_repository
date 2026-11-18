@@ -15,7 +15,7 @@
                         Counseling Request Details
                     </h2>
                 </div>
-                <a href="{{ route('student.requests') }}"
+                <a href="{{ route('student.requests.index') }}"
                    style="display: inline-flex; align-items: center; background: #f3f4f6; color: #374151; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none; white-space: nowrap; border: 1px solid #e5e7eb;">
                     ← Back to list
                 </a>

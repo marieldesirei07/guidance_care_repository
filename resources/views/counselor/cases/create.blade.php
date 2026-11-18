@@ -26,23 +26,12 @@
             <form action="{{ route('counselor.cases.store') }}" method="POST">
                 @csrf
 
-                <div style="margin-bottom: 16px;">
-                    <label style="display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:6px;">Student Name *</label>
-                    <input type="text" name="student_name" value="{{ old('student_name') }}" required
-                           style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px;">
-                </div>
+                @include('partials.student-picker', ['students' => $students])
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
-                    <div>
-                        <label style="display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:6px;">Student Number</label>
-                        <input type="text" name="student_number" value="{{ old('student_number') }}"
-                               style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px;">
-                    </div>
-                    <div>
-                        <label style="display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:6px;">Year / Section</label>
-                        <input type="text" name="year_section" value="{{ old('year_section') }}" placeholder="e.g. BSIT 3rd Year - A507"
-                               style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px;">
-                    </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:6px;">Year / Section (optional)</label>
+                    <input type="text" name="year_section" value="{{ old('year_section') }}" placeholder="e.g. BSIT 3rd Year - A507"
+                           style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:14px;">
                 </div>
 
                 <div style="margin-bottom: 16px;">

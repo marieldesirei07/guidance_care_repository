@@ -31,19 +31,33 @@ Route::middleware(['auth'])->group(function () {
         };
     })->name('dashboard');
 
+    // Change password (all roles). Saves through password.update (Auth\PasswordController).
+    Route::get('/password/change', function () {
+        return view('auth.change-password');
+    })->name('password.change');
+
     // ==================== STUDENT ====================
+    Route::middleware('role:student')->group(function () {
+
     Route::get('/student/dashboard', function () {
         return view('student.dashboard');
     })->name('student.dashboard');
 
+    // Counseling request form
     Route::get('/student/request', [App\Http\Controllers\Student\CounselingRequestController::class, 'create'])
         ->name('student.request.create');
     Route::post('/student/request', [App\Http\Controllers\Student\CounselingRequestController::class, 'store'])
         ->name('student.request.store');
 
+    // My Counseling Requests (View All)
     Route::get('/student/requests', function () {
-        return view('student.requests.index');
-    })->name('student.requests');
+        $requests = \Illuminate\Support\Facades\DB::table('counseling_requests')
+            ->where('student_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('student.requests.index', compact('requests'));
+    })->name('student.requests.index');
 
     Route::get('/student/requests/{id}', [App\Http\Controllers\Student\CounselingRequestController::class, 'show'])
         ->name('student.requests.show');
@@ -61,10 +75,17 @@ Route::middleware(['auth'])->group(function () {
         return back()->with('success', 'Request deleted.');
     })->name('student.requests.destroy');
 
-    // Appointments — fixed order: index → request → {id} → delete
+    // My Appointments (View All)
     Route::get('/student/appointments', function () {
-        return view('student.appointments.index');
-    })->name('student.appointments');
+        $appointments = \Illuminate\Support\Facades\DB::table('appointments')
+            ->leftJoin('cases', 'appointments.case_id', '=', 'cases.id')
+            ->select('appointments.*', 'cases.case_number', 'cases.concern_type')
+            ->where('appointments.student_id', auth()->id())
+            ->orderBy('appointments.appointment_datetime', 'desc')
+            ->get();
+
+        return view('student.appointments.index', compact('appointments'));
+    })->name('student.appointments.index');
 
     Route::get('/student/appointments/request', [App\Http\Controllers\Student\AppointmentRequestController::class, 'create'])
         ->name('student.appointments.request');
@@ -73,8 +94,6 @@ Route::middleware(['auth'])->group(function () {
         ->name('student.appointments.request.store');
 
     Route::get('/student/appointments/{id}', function ($id) {
-        $studentId = auth()->id();
-
         $appointment = \Illuminate\Support\Facades\DB::table('appointments')
             ->leftJoin('cases', 'appointments.case_id', '=', 'cases.id')
             ->select(
@@ -84,11 +103,11 @@ Route::middleware(['auth'])->group(function () {
                 'cases.status as case_status'
             )
             ->where('appointments.id', $id)
-            ->where('appointments.student_id', $studentId)
+            ->where('appointments.student_id', auth()->id())
             ->first();
 
         if (!$appointment) {
-            return redirect()->route('student.appointments')
+            return redirect()->route('student.appointments.index')
                 ->with('error', 'Appointment not found.');
         }
 
@@ -108,6 +127,7 @@ Route::middleware(['auth'])->group(function () {
         return back()->with('success', 'Appointment deleted.');
     })->name('student.appointments.destroy');
 
+    // Teacher Referrals
     Route::get('/student/teacher-referrals', [App\Http\Controllers\Student\TeacherReferralController::class, 'index'])
         ->name('student.teacher_referrals');
 
@@ -130,19 +150,23 @@ Route::middleware(['auth'])->group(function () {
         return back()->with('success', 'Referral deleted.');
     })->name('student.teacher_referrals.destroy');
 
+    }); // end role group
+
     // ==================== TEACHER ====================
+    Route::middleware('role:teacher')->group(function () {
+
     Route::get('/teacher/dashboard', function () {
         return view('teacher.dashboard');
     })->name('teacher.dashboard');
+
+    Route::get('/teacher/referrals', [ReferralController::class, 'index'])
+        ->name('teacher.referrals.index');
 
     Route::get('/teacher/referrals/create', [ReferralController::class, 'create'])
         ->name('teacher.referrals.create');
 
     Route::post('/teacher/referrals', [ReferralController::class, 'store'])
         ->name('teacher.referrals.store');
-
-    Route::get('/teacher/referrals', [ReferralController::class, 'index'])
-        ->name('teacher.referrals');
 
     Route::get('/teacher/referrals/{id}', [ReferralController::class, 'show'])
         ->name('teacher.referrals.show');
@@ -159,8 +183,12 @@ Route::middleware(['auth'])->group(function () {
 
         return back()->with('success', 'Referral deleted.');
     })->name('teacher.referrals.destroy');
+    
+    }); // end role group
 
     // ==================== COUNSELOR ====================
+    Route::middleware('role:counselor')->group(function () {
+
     Route::get('/counselor/dashboard', function () {
         return view('counselor.dashboard');
     })->name('counselor.dashboard');
@@ -180,6 +208,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('counselor.pending.referrals.destroy');
     Route::delete('/counselor/pending/requests/{id}', [CaseController::class, 'destroyPendingRequest'])
         ->name('counselor.pending.requests.destroy');
+
+    // Decline pending (no case created)
+    Route::post('/counselor/pending/referral/{id}/decline', [CaseController::class, 'declineReferral'])
+        ->whereNumber('id')
+        ->name('counselor.pending.referral.decline');
+    Route::post('/counselor/pending/request/{id}/decline', [CaseController::class, 'declineRequest'])
+        ->whereNumber('id')
+        ->name('counselor.pending.request.decline');
 
     // Cases — create/store BEFORE {id}, and {id} only accepts numbers
     Route::get('/counselor/cases/create', [CaseController::class, 'create'])
@@ -241,8 +277,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/counselor/requests', [CaseController::class, 'allRequests'])->name('counselor.requests');
 
     Route::delete('/counselor/referrals/{id}', function ($id) {
-    \Illuminate\Support\Facades\DB::table('referrals')->where('id', $id)->delete();
-    return back()->with('success', 'Referral deleted.');
+        \Illuminate\Support\Facades\DB::table('referrals')->where('id', $id)->delete();
+        return back()->with('success', 'Referral deleted.');
     })->name('counselor.referrals.destroy');
 
     Route::delete('/counselor/requests/{id}', function ($id) {
@@ -250,13 +286,17 @@ Route::middleware(['auth'])->group(function () {
         return back()->with('success', 'Request deleted.');
     })->name('counselor.requests.destroy');
 
+    }); // end role group
+
     // ==================== CLINIC ====================
+    Route::middleware('role:clinic')->group(function () {
+
     Route::get('/clinic/dashboard', function () {
         return view('clinic.dashboard');
     })->name('clinic.dashboard');
 
-    // Mark completed (matches the dashboard "Mark Completed" link)
-    Route::get('/clinic/referrals/{id}/complete', function ($id) {
+    // Mark completed (POST + CSRF form; a GET link could be triggered by accident)
+    Route::post('/clinic/referrals/{id}/complete', function ($id) {
         \Illuminate\Support\Facades\DB::table('office_referrals')
             ->where('id', $id)
             ->where('office', 'Clinic')
@@ -276,21 +316,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/clinic/referrals/{id}', [CaseController::class, 'showClinicReferral'])
         ->name('clinic.referrals.show');
 
-    Route::delete('/clinic/referrals/{id}', function ($id) {
-        \Illuminate\Support\Facades\DB::table('office_referrals')
-            ->where('id', $id)
-            ->where('office', 'Clinic')
-            ->delete();
-        return back()->with('success', 'Referral deleted.');
-    })->name('clinic.referrals.destroy');
+
+    }); // end role group
 
     // ==================== DISCIPLINARY ====================
+    Route::middleware('role:disciplinary')->group(function () {
+
     Route::get('/disciplinary/dashboard', function () {
         return view('disciplinary.dashboard');
     })->name('disciplinary.dashboard');
 
     // Complete MUST be before /referrals/{id}
-    Route::get('/disciplinary/referrals/{id}/complete', function ($id) {
+    Route::post('/disciplinary/referrals/{id}/complete', function ($id) {
         \Illuminate\Support\Facades\DB::table('office_referrals')
             ->where('id', $id)
             ->where('office', 'Disciplinary')
@@ -303,19 +340,20 @@ Route::middleware(['auth'])->group(function () {
             ->with('success', 'Referral marked as resolved.');
     })->name('disciplinary.referrals.complete');
 
-    Route::delete('/disciplinary/referrals/{id}', function ($id) {
-        \Illuminate\Support\Facades\DB::table('office_referrals')
-            ->where('id', $id)
-            ->where('office', 'Disciplinary')
-            ->delete();
-        return back()->with('success', 'Referral deleted.');
-    })->name('disciplinary.referrals.destroy');
 
-    // Optional list/show — only if methods exist
-    // Route::get('/disciplinary/referrals', ...);
-    // Route::get('/disciplinary/referrals/{id}', ...);
+    // View All + details (same pattern as Clinic)
+    Route::get('/disciplinary/referrals', [CaseController::class, 'disciplinaryReferralsIndex'])
+        ->name('disciplinary.referrals.index');
+
+    Route::get('/disciplinary/referrals/{id}', [CaseController::class, 'showDisciplinaryReferral'])
+        ->whereNumber('id')
+        ->name('disciplinary.referrals.show');
+
+    }); // end role group
 
     // ==================== ADMIN ====================
+    Route::middleware('role:admin')->group(function () {
+
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
@@ -341,8 +379,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/users', function (\Illuminate\Http\Request $request) {
         $data = $request->validate([
             'name'           => 'required|string|max:255',
-            'email'          => 'required|email|unique:users,email',
-            'password'       => 'required|string|min:6',
+            'email'          => ['required', 'email', 'unique:users,email', new \App\Rules\AllowedEmailDomain],
+            'password'       => ['required', 'string', \Illuminate\Validation\Rules\Password::defaults()],
             'role'           => 'required|in:student,teacher,counselor,clinic,disciplinary,admin',
             'student_number' => 'nullable|string|max:50',
             'employee_id'    => 'nullable|string|max:50',
@@ -355,9 +393,11 @@ Route::middleware(['auth'])->group(function () {
             'role'           => $data['role'],
             'student_number' => $data['student_number'] ?? null,
             'employee_id'    => $data['employee_id'] ?? null,
+            'must_change_password' => true, // temporary password: user must change it on first login
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Account created. Give the user the temporary password; they must change it on first login.');
     })->name('admin.users.store');
 
     Route::get('/admin/users/{id}/edit', function ($id) {
@@ -373,11 +413,11 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/admin/users/{id}', function (\Illuminate\Http\Request $request, $id) {
         $data = $request->validate([
             'name'           => 'required|string|max:255',
-            'email'          => 'required|email|unique:users,email,' . $id,
+            'email'          => ['required', 'email', 'unique:users,email,' . $id, new \App\Rules\AllowedEmailDomain],
             'role'           => 'required|in:student,teacher,counselor,clinic,disciplinary,admin',
             'student_number' => 'nullable|string|max:50',
             'employee_id'    => 'nullable|string|max:50',
-            'password'       => 'nullable|string|min:6',
+            'password'       => ['nullable', 'string', \Illuminate\Validation\Rules\Password::defaults()],
         ]);
 
         $user = \App\Models\User::findOrFail($id);
@@ -389,7 +429,8 @@ Route::middleware(['auth'])->group(function () {
         $user->employee_id = $data['employee_id'] ?? null;
 
         if (!empty($data['password'])) {
-            $user->password = $data['password']; // hashed by model cast if set
+            $user->password = $data['password']; // hashed by model cast
+            $user->must_change_password = true;   // a reset password is temporary
         }
 
         $user->save();
@@ -408,5 +449,7 @@ Route::middleware(['auth'])->group(function () {
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     })->name('admin.users.destroy');
+
+    }); // end role group
 
 });

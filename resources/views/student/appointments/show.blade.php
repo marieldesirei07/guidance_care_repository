@@ -7,7 +7,7 @@
         @if(!isset($appointment) || !$appointment)
             <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; text-align: center;">
                 <p style="color: #9ca3af; margin: 0 0 12px 0;">Appointment not found.</p>
-                <a href="{{ route('student.appointments') }}" style="color: #7c3aed; font-size: 14px; text-decoration: none;">
+                <a href="{{ route('student.appointments.index') }}" style="color: #7c3aed; font-size: 14px; text-decoration: none;">
                     ← Back to appointments
                 </a>
             </div>
@@ -23,7 +23,7 @@
                             Appointment Details
                         </h2>
                     </div>
-                    <a href="{{ route('student.appointments') }}"
+                    <a href="{{ route('student.appointments.index') }}"
                        style="display: inline-block; background: #f3f4f6; color: #4b5563; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none; white-space: nowrap;">
                         ← Back to list
                     </a>

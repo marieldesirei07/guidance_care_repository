@@ -36,71 +36,36 @@ class ReferralController extends Controller
 
     public function store(Request $request)
     {
+        // Every student has a school-provisioned account: the teacher picks one.
         $request->validate([
-            'student_name'   => 'required|string|max:255',
-            'student_number' => 'nullable|string|max:50',
-            'program'        => 'required|string|max:100',
-            'year_level'     => 'required|string|max:50',
-            'section'        => 'required|string|max:20',
-            'concern_type'   => 'required|string',
-            'description'    => 'required|string|min:10',
-            'urgency'        => 'required|in:Low,Medium,High',
+            'student_id'   => [
+                'required',
+                \Illuminate\Validation\Rule::exists('users', 'id')->where('role', 'student'),
+            ],
+            'year_section' => 'nullable|string|max:100',
+            'concern_type' => 'required|string|max:100',
+            'urgency'      => 'required|in:Low,Medium,High',
+            'description'  => 'required|string|min:10',
+        ], [
+            'student_id.required' => 'Please select the student from the list.',
+            'student_id.exists'   => 'Please select a registered student from the list.',
         ]);
 
-        // Combined label for lists/filters (e.g. "BSIT · 3rd Year · A301")
-        $yearSection = $request->program . ' · ' . $request->year_level . ' · ' . strtoupper(trim($request->section));
+        $student = DB::table('users')->where('id', $request->student_id)->first();
 
-        // Try to link a registered student by student_number (optional)
-        $linkedStudent = null;
-        if (!empty($request->student_number)) {
-            $linkedStudent = DB::table('users')
-                ->where('role', 'student')
-                ->where('student_number', $request->student_number)
-                ->first();
-        }
-
-        $data = [
-            'teacher_id'     => Auth::id(),
-            'student_id'     => $linkedStudent->id ?? null,
-            'student_name'   => $request->student_name,
-            'student_number' => $request->student_number,
-            'year_section'   => $yearSection,
+        DB::table('referrals')->insert([
+            'teacher_id'     => auth()->id(),
+            'student_id'     => $student->id,
+            'student_name'   => $student->name,           // copy kept for display/history
+            'student_number' => $student->student_number,
+            'year_section'   => $request->year_section,
             'concern_type'   => $request->concern_type,
             'description'    => $request->description,
             'urgency'        => $request->urgency,
             'status'         => 'Pending',
             'created_at'     => now(),
             'updated_at'     => now(),
-        ];
-
-        // Only set these if the columns exist (keeps filter system compatible)
-        if (Schema::hasColumn('referrals', 'year_level')) {
-            $data['year_level'] = $request->year_level;
-        }
-        if (Schema::hasColumn('referrals', 'student_response')) {
-            $data['student_response'] = 'Pending';
-        }
-
-        DB::table('referrals')->insert($data);
-
-        // Email student only if linked account has email
-        if ($linkedStudent && !empty($linkedStudent->email)) {
-            try {
-                $teacher = Auth::user();
-                $referralData = (object) [
-                    'concern_type' => $request->concern_type,
-                    'urgency'      => $request->urgency,
-                ];
-
-                Mail::to($linkedStudent->email)->send(new TeacherReferralNotification(
-                    $referralData,
-                    $teacher->name,
-                    $linkedStudent->name
-                ));
-            } catch (\Exception $e) {
-                // Referral still succeeds if email fails
-            }
-        }
+        ]);
 
         return redirect()->route('teacher.dashboard')
             ->with('success', 'Referral submitted successfully.');
@@ -108,14 +73,16 @@ class ReferralController extends Controller
 
     public function index()
     {
+        $teacherId = auth()->id();
+
         $referrals = DB::table('referrals')
             ->leftJoin('users', 'referrals.student_id', '=', 'users.id')
             ->select(
                 'referrals.*',
-                DB::raw('COALESCE(referrals.student_name, users.name) as student_name'),
-                DB::raw('COALESCE(referrals.student_number, users.student_number) as student_number')
+                DB::raw("COALESCE(users.name, referrals.student_name, 'Unknown') as student_name"),
+                DB::raw("COALESCE(users.student_number, referrals.student_number, '') as student_number")
             )
-            ->where('referrals.teacher_id', auth()->id())
+            ->where('referrals.teacher_id', $teacherId)
             ->orderBy('referrals.created_at', 'desc')
             ->get();
 
@@ -128,18 +95,20 @@ class ReferralController extends Controller
             ->leftJoin('users', 'referrals.student_id', '=', 'users.id')
             ->select(
                 'referrals.*',
-                DB::raw('COALESCE(referrals.student_name, users.name) as student_name'),
-                DB::raw('COALESCE(referrals.student_number, users.student_number) as student_number')
+                DB::raw("COALESCE(users.name, referrals.student_name, 'Unknown') as student_name"),
+                DB::raw("COALESCE(users.student_number, referrals.student_number, '') as student_number")
             )
             ->where('referrals.id', $id)
             ->where('referrals.teacher_id', auth()->id())
             ->first();
 
         if (!$referral) {
-            return redirect()->route('teacher.referrals')->with('error', 'Referral not found.');
+            return redirect()->route('teacher.dashboard')->with('error', 'Referral not found.');
         }
 
-        return view('teacher.referrals.show', compact('referral'));
+        $yearSection = $referral->year_section ?? '';
+
+        return view('teacher.referrals.show', compact('referral', 'yearSection'));
     }
 
     public function destroy($id)

@@ -35,8 +35,9 @@
                 </div>
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">New Password (leave blank to keep)</label>
-                    <input type="password" name="password" minlength="6"
+                    <input type="password" name="password" minlength="8"
                            style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                    <p style="margin: 6px 0 0; font-size: 12px; color: #6b7280;">Min. 8 characters with an uppercase letter, a number and a symbol.</p>
                 </div>
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Role</label>

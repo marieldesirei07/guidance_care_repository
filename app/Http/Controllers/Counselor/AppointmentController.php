@@ -59,45 +59,65 @@ class AppointmentController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'case_id'              => 'required|exists:cases,id',
-            'student_id'           => 'nullable|exists:users,id',
-            'appointment_datetime' => 'required|date|after:now',
-            'location'             => 'nullable|string|max:255',
-            'purpose'              => 'nullable|string|max:1000',
-        ]);
+{
+    $validated = $request->validate([
+        'case_id'              => 'required|exists:cases,id',
+        'student_id'           => 'nullable|exists:users,id',
+        'appointment_datetime' => 'required|date|after:now',
+        'location'             => 'nullable|string|max:255',
+        'purpose'              => 'nullable|string|max:1000',
+    ]);
 
-        $id = DB::table('appointments')->insertGetId([
-            'case_id'              => $validated['case_id'],
-            'student_id'           => $validated['student_id'] ?? null,
-            'counselor_id'         => auth()->id(),
-            'appointment_datetime' => $validated['appointment_datetime'],
-            'location'             => $validated['location'],
-            'purpose'              => $validated['purpose'],
-            'status'               => 'Scheduled',
-            'created_at'           => now(),
-            'updated_at'           => now(),
-        ]);
-
-        if (!empty($validated['student_id'])) {
-            $student = DB::table('users')->where('id', $validated['student_id'])->first();
-            if ($student && !empty($student->email)) {
-                try {
-                    Mail::to($student->email)->send(new AppointmentScheduled([
-                        'student_name' => $student->name,
-                        'datetime'     => $validated['appointment_datetime'],
-                        'location'     => $validated['location'] ?? 'Guidance Office',
-                        'purpose'      => $validated['purpose'] ?? '',
-                    ]));
-                } catch (\Exception $e) {
-                }
-            }
-        }
-
-        return redirect()->route('counselor.cases.show', $validated['case_id'])
-            ->with('success', 'Appointment scheduled successfully.');
+    // Prefer form student_id; if missing, take it from the case
+    $studentId = $validated['student_id'] ?? null;
+    if (!$studentId) {
+        $case = DB::table('cases')->where('id', $validated['case_id'])->first();
+        $studentId = $case->student_id ?? null;
     }
+
+    DB::table('appointments')->insert([
+        'case_id'              => $validated['case_id'],
+        'student_id'           => $studentId,
+        'counselor_id'         => auth()->id(),
+        'appointment_datetime' => $validated['appointment_datetime'],
+        'location'             => $validated['location'],
+        'purpose'              => $validated['purpose'],
+        'status'               => 'Scheduled',
+        'created_at'           => now(),
+        'updated_at'           => now(),
+    ]);
+
+    $emailStatus = null;
+
+    if ($studentId) {
+        $student = DB::table('users')->where('id', $studentId)->first();
+        if ($student && !empty($student->email)) {
+            try {
+                Mail::to($student->email)->send(new AppointmentScheduled([
+                    'student_name' => $student->name,
+                    'datetime'     => $validated['appointment_datetime'],
+                    'location'     => $validated['location'] ?? 'Guidance Office',
+                    'purpose'      => $validated['purpose'] ?? '',
+                ]));
+                $emailStatus = 'Email sent to ' . $student->email;
+            } catch (\Exception $e) {
+                $emailStatus = 'Email failed: ' . $e->getMessage();
+            }
+        } else {
+            $emailStatus = 'No email on student account';
+        }
+    } else {
+        $emailStatus = 'No linked student — email skipped';
+    }
+
+    $message = 'Appointment scheduled successfully.';
+    if ($emailStatus) {
+        $message .= ' (' . $emailStatus . ')';
+    }
+
+    return redirect()->route('counselor.cases.show', $validated['case_id'])
+        ->with('success', $message);
+}
 
     public function updateStatus(Request $request, $id)
     {

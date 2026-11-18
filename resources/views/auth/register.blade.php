@@ -25,6 +25,7 @@
                             name="password"
                             required autocomplete="new-password" />
 
+            <p style="margin: 6px 0 0; font-size: 12px; color: #6b7280;">Min. 8 characters with an uppercase letter, a number and a symbol.</p>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 

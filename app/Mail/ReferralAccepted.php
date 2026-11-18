@@ -12,11 +12,17 @@ class ReferralAccepted extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $referral;
+    /** Values read by resources/views/emails/referral_accepted.blade.php as $data['key']. */
+    public array $data;
 
-    public function __construct($referral)
+    public function __construct($referral, $counselorName = null)
     {
-        $this->referral = $referral;
+        $this->data = [
+            'counselor_name' => $counselorName ?: 'Counselor',
+            'student_name'   => data_get($referral, 'student_name'),
+            'concern_type'   => data_get($referral, 'concern_type'),
+            'teacher_name'   => data_get($referral, 'teacher_name'),
+        ];
     }
 
     public function envelope(): Envelope

@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
     $middleware->alias([
         'role' => \App\Http\Middleware\RoleMiddleware::class,
     ]);
+    // Temporary-password accounts must set their own password first.
+    $middleware->web(append: [
+        \App\Http\Middleware\ForcePasswordChange::class,
+    ]);
 })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

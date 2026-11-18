@@ -20,9 +20,17 @@ class PasswordController extends Controller
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
+        $wasTemporary = (bool) $request->user()->must_change_password;
+
         $request->user()->update([
             'password' => Hash::make($validated['password']),
+            'must_change_password' => false,
         ]);
+
+        if ($wasTemporary) {
+            return redirect()->route('dashboard')
+                ->with('success', 'Your password has been changed. Welcome to GuidanceCare.');
+        }
 
         return back()->with('status', 'password-updated');
     }

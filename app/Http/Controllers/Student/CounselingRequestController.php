@@ -19,22 +19,19 @@ class CounselingRequestController extends Controller
         $validated = $request->validate([
             'student_name'         => 'required|string|max:255',
             'student_number'       => 'nullable|string|max:50',
-            'program'              => 'required|string|max:100',
-            'year_level'           => 'required|string|max:50',
-            'section'              => 'required|string|max:50',
+            'program'              => 'nullable|string|max:100',
+            'year_section'         => 'required|string|max:100',
             'concern_type'         => 'required|string|max:100',
             'description'          => 'required|string|min:10',
             'preferred_datetime'   => 'nullable|date|after:now',
         ]);
 
-        $yearSection = $validated['year_level'] . ' - ' . $validated['section'];
-
         DB::table('counseling_requests')->insert([
             'student_id'           => Auth::id(),
             'student_name'         => $validated['student_name'],
             'student_number'       => $validated['student_number'] ?? null,
-            'program'              => $validated['program'],
-            'year_section'         => $yearSection,
+            'program'              => $validated['program'] ?? null,
+            'year_section'         => $validated['year_section'],
             'concern_type'         => $validated['concern_type'],
             'description'          => $validated['description'],
             'preferred_datetime'   => $validated['preferred_datetime'] ?? null,
@@ -55,7 +52,7 @@ class CounselingRequestController extends Controller
             ->first();
 
         if (!$request) {
-            return redirect()->route('student.requests')
+            return redirect()->route('student.requests.index')
                 ->with('error', 'Request not found.');
         }
 

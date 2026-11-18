@@ -12,15 +12,17 @@ class TeacherReferralNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $referral;
-    public $teacherName;
-    public $studentName;
+    /** Values read by resources/views/emails/teacher_referral.blade.php as $data['key']. */
+    public array $data;
 
     public function __construct($referral, $teacherName, $studentName)
     {
-        $this->referral = $referral;
-        $this->teacherName = $teacherName;
-        $this->studentName = $studentName;
+        $this->data = [
+            'student_name' => $studentName,
+            'concern_type' => data_get($referral, 'concern_type'),
+            'teacher_name' => $teacherName,
+            'urgency'      => data_get($referral, 'urgency'),
+        ];
     }
 
     public function envelope(): Envelope
@@ -34,11 +36,6 @@ class TeacherReferralNotification extends Mailable
     {
         return new Content(
             view: 'emails.teacher_referral',
-            with: [
-                'referral' => $this->referral,
-                'teacherName' => $this->teacherName,
-                'studentName' => $this->studentName,
-            ],
         );
     }
 }

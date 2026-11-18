@@ -16,117 +16,98 @@
         ->orderBy('office_referrals.created_at', 'desc')
         ->get();
 
-    $pendingCount = $referrals->whereIn('status', ['Pending', 'Received', 'In Progress'])->count();
+    // Counts use the full list; the table shows the latest 10 and "View All" opens the rest.
+    $totalCount     = $referrals->count();
+    $pendingCount   = $referrals->whereIn('status', ['Pending', 'Received', 'In Progress'])->count();
     $completedCount = $referrals->where('status', 'Completed')->count();
-    $totalCount = $referrals->count();
+    $recent         = $referrals->take(10);
 @endphp
 
-<div style="padding-top: 32px; padding-bottom: 40px;">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+<div class="gc-page">
+    <div class="gc-container gc-stack">
 
-        {{-- Header --}}
-        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                <div>
-                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">
-                        School Clinic Portal
-                    </p>
-                    <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #111827;">
-                        Clinic Referrals
-                    </h1>
-                    <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                        Medical / health referrals from the Guidance Office. Limited access — confidential details are protected.
-                    </p>
+        {{-- 1. Header --}}
+        <div class="gc-card gc-card-body">
+            <div class="gc-hero">
+                <div class="gc-hero-text">
+                    <p class="gc-eyebrow">School Clinic Portal</p>
+                    <h1 class="gc-title">Clinic Referrals</h1>
+                    <p class="gc-subtitle">Medical / health referrals from the Guidance Office. Limited access — confidential details are protected.</p>
                 </div>
-                <span style="display: inline-block; font-size: 12px; font-weight: 500; color: #15803d; background: #dcfce7;
-                             padding: 8px 12px; border-radius: 8px; white-space: nowrap;">
-                    Privacy Protected
-                </span>
+                <span class="gc-chip-privacy">Privacy Protected</span>
             </div>
         </div>
 
         @if(session('success'))
-            <div style="margin-bottom: 16px; padding: 14px 16px; background: #dcfce7; color: #15803d; border-radius: 8px; font-size: 14px;">
-                {{ session('success') }}
-            </div>
+            <div class="gc-flash gc-flash-success" role="status">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="gc-flash gc-flash-error" role="alert">{{ session('error') }}</div>
         @endif
 
-        {{-- Stats --}}
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Total Referrals</p>
-                <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $totalCount }}</p>
+        {{-- 2. Stats --}}
+        <div class="gc-stats">
+            <div class="gc-stat">
+                <p class="gc-stat-label">Total Referrals</p>
+                <p class="gc-stat-value">{{ $totalCount }}</p>
             </div>
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Pending / Active</p>
-                <p style="margin: 0; font-size: 28px; font-weight: 700; color: #b45309;">{{ $pendingCount }}</p>
+            <div class="gc-stat">
+                <p class="gc-stat-label">Pending / Active</p>
+                <p class="gc-stat-value is-pending">{{ $pendingCount }}</p>
             </div>
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Completed</p>
-                <p style="margin: 0; font-size: 28px; font-weight: 700; color: #15803d;">{{ $completedCount }}</p>
+            <div class="gc-stat">
+                <p class="gc-stat-label">Completed</p>
+                <p class="gc-stat-value is-done">{{ $completedCount }}</p>
             </div>
         </div>
 
-        {{-- Table --}}
-        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
-            <div style="padding: 16px 24px; border-bottom: 1px solid #f3f4f6;">
-                <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Assigned Clinic Referrals</h3>
-            </div>
+        {{-- 3. Table --}}
+        <div class="gc-card">
+            <x-gc-section-header title="Assigned Clinic Referrals" :href="route('clinic.referrals.index')" />
 
-            @if($referrals->isEmpty())
-                <p style="padding: 24px; margin: 0; font-size: 14px; color: #9ca3af;">No referrals assigned to the Clinic yet.</p>
+            @if($recent->isEmpty())
+                <div class="gc-empty">No referrals assigned to the Clinic yet.</div>
             @else
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <div class="gc-table-wrap">
+                    <table class="gc-table">
                         <thead>
-                            <tr style="background: #f9fafb; text-align: left;">
-                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Case No.</th>
-                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Student</th>
-                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Concern</th>
-                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Reason</th>
-                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Status</th>
-                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Date</th>
-                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; text-align: right;">Action</th>
+                            <tr>
+                                <th>Case No.</th>
+                                <th>Student</th>
+                                <th>Concern</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th class="gc-col-action">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($referrals as $ref)
-                                <tr style="border-top: 1px solid #f3f4f6;">
-                                    <td style="padding: 14px 24px; color: #111827; font-weight: 500;">{{ $ref->case_number ?? '—' }}</td>
-                                    <td style="padding: 14px 24px; color: #111827;">
-                                        {{ $ref->student_name ?? 'Unknown' }}
+                            @foreach($recent as $ref)
+                                <tr>
+                                    <td class="gc-strong">{{ $ref->case_number ?? '—' }}</td>
+                                    <td>
+                                        <span class="gc-strong">{{ $ref->student_name ?? 'Unknown' }}</span>
                                         @if(!empty($ref->student_number))
-                                            <br><span style="font-size: 12px; color: #6b7280;">{{ $ref->student_number }}</span>
+                                            <br><span class="gc-muted">{{ $ref->student_number }}</span>
                                         @endif
                                     </td>
-                                    <td style="padding: 14px 24px; color: #374151;">{{ $ref->concern_type ?? '—' }}</td>
-                                    <td style="padding: 14px 24px; color: #374151; max-width: 220px;">
-                                        {{ \Illuminate\Support\Str::limit($ref->reason ?? '', 50) }}
-                                    </td>
-                                    <td style="padding: 14px 24px;">
-                                        @php
-                                            $st = $ref->status ?? 'Pending';
-                                            $stBadge = $st === 'Completed'
-                                                ? 'background:#dcfce7; color:#15803d;'
-                                                : 'background:#dbeafe; color:#1d4ed8;';
-                                        @endphp
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; {{ $stBadge }}">
-                                            {{ $st }}
-                                        </span>
-                                    </td>
-                                    <td style="padding: 14px 24px; color: #6b7280;">
-                                        {{ \Carbon\Carbon::parse($ref->created_at)->format('M d, Y') }}
-                                    </td>
-                                    <td style="padding: 14px 24px; text-align: right; white-space: nowrap;">
-                                        @if(($ref->status ?? '') !== 'Completed')
-                                            <a href="{{ route('clinic.referrals.complete', $ref->id) }}"
-                                               style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500;"
-                                               onclick="return confirm('Mark this referral as completed?');">
-                                                Mark Completed
-                                            </a>
-                                        @else
-                                            <span style="font-size: 13px; color: #9ca3af;">Done</span>
-                                        @endif
+                                    <td>{{ $ref->concern_type ?? '—' }}</td>
+                                    <td class="gc-cell-clip">{{ \Illuminate\Support\Str::limit($ref->reason ?? '', 50) }}</td>
+                                    <td><x-gc-status-badge :status="$ref->status ?? 'Pending'" /></td>
+                                    <td class="gc-nowrap">{{ \Carbon\Carbon::parse($ref->created_at)->format('M d, Y') }}</td>
+                                    <td class="gc-col-action">
+                                        <div class="gc-row-actions">
+                                            <a href="{{ route('clinic.referrals.show', $ref->id) }}" class="gc-btn gc-btn-secondary gc-btn-sm">View Details</a>
+                                            @if(($ref->status ?? '') !== 'Completed')
+                                                <form method="POST" action="{{ route('clinic.referrals.complete', $ref->id) }}" style="margin:0;"
+                                                      onsubmit="if (!confirm('Mark this referral as completed?')) { return false; } this.querySelector('button').disabled = true;">
+                                                    @csrf
+                                                    <button type="submit" class="gc-btn gc-btn-primary gc-btn-sm">Mark Completed</button>
+                                                </form>
+                                            @else
+                                                <span class="gc-muted">Done</span>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -136,11 +117,7 @@
             @endif
         </div>
 
-        <div style="margin-top: 48px; padding: 24px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-                GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant
-            </p>
-        </div>
+        <p class="gc-footer">GuidanceCare System • STI College Global City • Centralized Student Support &amp; Privacy Compliant</p>
     </div>
 </div>
 @endsection

@@ -50,6 +50,7 @@
                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
                                   required
                                   placeholder="Explain why this case needs to be referred..."></textarea>
+                        <p style="margin:6px 0 0; font-size:12px; color:#b45309;">Privacy: this reason is visible to the receiving office. Do not include confidential counseling details or case notes.</p>
                     </div>
 
                     {{-- Notes for receiving office --}}

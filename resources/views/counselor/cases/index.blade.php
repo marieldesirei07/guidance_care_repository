@@ -36,7 +36,7 @@
         <form method="GET" action="{{ route('counselor.cases') }}"
               style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px;
                      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
-            <input type="text" name="q" value="{{ $q ?? request('q') }}"
+            <input type="text" name="q" value="{{ $q ?? '' }}"
                    placeholder="Search case no., student, concern..."
                    style="flex: 1; min-width: 200px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
 
@@ -44,7 +44,7 @@
                     style="padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; background: white; min-width: 160px;">
                 <option value="">All statuses</option>
                 @foreach(['Pending','Ongoing','For Follow-up','Completed','Referred','Closed'] as $st)
-                    <option value="{{ $st }}" {{ ($status ?? request('status')) === $st ? 'selected' : '' }}>{{ $st }}</option>
+                    <option value="{{ $st }}" {{ ($status ?? '') === $st ? 'selected' : '' }}>{{ $st }}</option>
                 @endforeach
             </select>
 
@@ -53,7 +53,7 @@
                 Search
             </button>
 
-            @if(!empty($q) || !empty($status) || request('q') || request('status'))
+            @if(($q ?? '') !== '' || ($status ?? '') !== '')
                 <a href="{{ route('counselor.cases') }}"
                    style="font-size: 13px; color: #6b7280; text-decoration: none; padding: 10px 12px;">
                     Clear
@@ -107,16 +107,15 @@
                                 </td>
                                 <td style="padding: 14px 24px; text-align: right; white-space: nowrap;">
                                     <a href="{{ route('counselor.cases.show', $case->id) }}"
-                                       style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; margin-right: 6px;">
-                                        View
+                                       style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500;">
+                                        View Details
                                     </a>
-                                    {{-- keep your existing delete form here if you have one --}}
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="6" style="padding: 32px 24px; text-align: center; color: #9ca3af;">
-                                    No cases found{{ !empty($q) || !empty($status) ? ' for this search.' : ' yet.' }}
+                                    No cases found{{ ($q ?? '') !== '' || ($status ?? '') !== '' ? ' for this search.' : ' yet.' }}
                                 </td>
                             </tr>
                         @endforelse

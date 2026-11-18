@@ -12,9 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('student_number')->nullable()->after('email');
-            $table->string('employee_id')->nullable()->after('student_number');
-            $table->string('role')->default('student')->after('employee_id');
+            // Skip columns the earlier role migration already created (fresh installs).
+            if (!Schema::hasColumn('users', 'student_number')) {
+                $table->string('student_number')->nullable()->after('email');
+            }
+            if (!Schema::hasColumn('users', 'employee_id')) {
+                $table->string('employee_id')->nullable()->after('student_number');
+            }
+            if (!Schema::hasColumn('users', 'role')) {
+                $table->string('role')->default('student')->after('employee_id');
+            }
         });
     }
 

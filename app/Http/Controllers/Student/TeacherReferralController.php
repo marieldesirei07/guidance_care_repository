@@ -14,7 +14,22 @@ class TeacherReferralController extends Controller
 {
     public function index()
     {
-        return view('student.teacher_referrals.index');
+        $studentId = Auth::id();
+        $studentNumber = Auth::user()->student_number ?? null;
+
+        $referrals = DB::table('referrals')
+            ->leftJoin('users as teachers', 'referrals.teacher_id', '=', 'teachers.id')
+            ->select('referrals.*', 'teachers.name as teacher_name')
+            ->where(function ($q) use ($studentId, $studentNumber) {
+                $q->where('referrals.student_id', $studentId);
+                if ($studentNumber) {
+                    $q->orWhere('referrals.student_number', $studentNumber);
+                }
+            })
+            ->orderByDesc('referrals.created_at')
+            ->get();
+
+        return view('student.teacher_referrals.index', compact('referrals'));
     }
 
     public function show($id)
@@ -87,7 +102,7 @@ class TeacherReferralController extends Controller
                 foreach ($counselors as $counselor) {
                     if (!empty($counselor->email)) {
                         try {
-                            Mail::to($counselor->email)->send(new ReferralAccepted($referralData));
+                            Mail::to($counselor->email)->send(new ReferralAccepted($referralData, $counselor->name));
                         } catch (\Exception $e) {
                             // ignore mail errors
                         }

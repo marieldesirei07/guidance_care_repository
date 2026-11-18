@@ -13,34 +13,48 @@ class CaseController extends Controller
     public function index(\Illuminate\Http\Request $request)
     {
         $q = trim((string) $request->get('q', ''));
-        $status = $request->get('status', '');
+        $status = trim((string) $request->get('status', ''));
 
-        $query = \Illuminate\Support\Facades\DB::table('cases')
+        $cases = \Illuminate\Support\Facades\DB::table('cases')
             ->leftJoin('users', 'cases.student_id', '=', 'users.id')
             ->select(
-                'cases.*',
+                'cases.id',
+                'cases.case_number',
+                'cases.student_id',
+                'cases.counselor_id',
+                'cases.referral_id',
+                'cases.request_id',
+                'cases.concern_type',
+                'cases.summary',
+                'cases.status',
+                'cases.opened_at',
+                'cases.closed_at',
+                'cases.created_at',
+                'cases.updated_at',
                 \Illuminate\Support\Facades\DB::raw('COALESCE(cases.student_name, users.name) as student_name'),
                 \Illuminate\Support\Facades\DB::raw('COALESCE(cases.student_number, users.student_number) as student_number')
             )
-            ->orderBy('cases.created_at', 'desc');
-
-        if ($q !== '') {
-        $like = '%' . mb_strtolower($q) . '%';
-
-        $query->where(function ($w) use ($like) {
-            $w->whereRaw('LOWER(cases.case_number) LIKE ?', [$like])
-            ->orWhereRaw('LOWER(cases.concern_type) LIKE ?', [$like])
-            ->orWhereRaw('LOWER(COALESCE(cases.summary, "")) LIKE ?', [$like])
-            ->orWhereRaw('LOWER(COALESCE(cases.student_name, users.name, "")) LIKE ?', [$like])
-            ->orWhereRaw('LOWER(COALESCE(cases.student_number, users.student_number, "")) LIKE ?', [$like]);
-        });
-    }
+            ->orderBy('cases.created_at', 'desc')
+            ->get();
 
         if ($status !== '') {
-            $query->where('cases.status', $status);
+            $cases = $cases->filter(function ($case) use ($status) {
+                return ($case->status ?? '') === $status;
+            })->values();
         }
 
-        $cases = $query->get();
+        if ($q !== '') {
+            $cases = $cases->filter(function ($case) use ($q) {
+                $haystack = implode(' ', [
+                    $case->case_number ?? '',
+                    $case->student_name ?? '',
+                    $case->student_number ?? '',
+                    $case->concern_type ?? '',
+                    $case->summary ?? '',
+                ]);
+                return stripos($haystack, $q) !== false;
+            })->values();
+        }
 
         return view('counselor.cases.index', compact('cases', 'q', 'status'));
     }
@@ -334,34 +348,6 @@ class CaseController extends Controller
         return view('counselor.office_referrals.show', compact('referral'));
     }
 
-    public function completeClinicReferral($id)
-    {
-        DB::table('office_referrals')
-            ->where('id', $id)
-            ->where('office', 'Clinic')
-            ->update([
-                'status' => 'Completed',
-                'updated_at' => now(),
-            ]);
-
-        return redirect()->route('clinic.dashboard')
-            ->with('success', 'Referral marked as completed.');
-    }
-
-    public function completeDisciplinaryReferral($id)
-    {
-        DB::table('office_referrals')
-            ->where('id', $id)
-            ->where('office', 'Disciplinary')
-            ->update([
-                'status' => 'Completed',
-                'updated_at' => now(),
-            ]);
-
-        return redirect()->route('disciplinary.dashboard')
-            ->with('success', 'Referral marked as resolved.');
-    }
-
     public function showPendingReferral($id)
     {
         $referral = DB::table('referrals')
@@ -408,7 +394,14 @@ class CaseController extends Controller
             ->leftJoin('cases', 'office_referrals.case_id', '=', 'cases.id')
             ->leftJoin('users', 'cases.student_id', '=', 'users.id')
             ->select(
-                'office_referrals.*',
+                'office_referrals.id',
+                'office_referrals.case_id',
+                'office_referrals.office',
+                'office_referrals.reason',
+                'office_referrals.notes_for_office',
+                'office_referrals.status',
+                'office_referrals.created_at',
+                'office_referrals.updated_at',
                 'cases.case_number',
                 'cases.concern_type',
                 DB::raw('COALESCE(cases.student_name, users.name) as student_name'),
@@ -431,7 +424,14 @@ class CaseController extends Controller
             ->leftJoin('cases', 'office_referrals.case_id', '=', 'cases.id')
             ->leftJoin('users', 'cases.student_id', '=', 'users.id')
             ->select(
-                'office_referrals.*',
+                'office_referrals.id',
+                'office_referrals.case_id',
+                'office_referrals.office',
+                'office_referrals.reason',
+                'office_referrals.notes_for_office',
+                'office_referrals.status',
+                'office_referrals.created_at',
+                'office_referrals.updated_at',
                 'cases.case_number',
                 'cases.concern_type',
                 DB::raw('COALESCE(cases.student_name, users.name) as student_name'),
@@ -455,7 +455,13 @@ class CaseController extends Controller
             ->leftJoin('cases', 'office_referrals.case_id', '=', 'cases.id')
             ->leftJoin('users', 'cases.student_id', '=', 'users.id')
             ->select(
-                'office_referrals.*',
+                'office_referrals.id',
+                'office_referrals.case_id',
+                'office_referrals.office',
+                'office_referrals.reason',
+                'office_referrals.status',
+                'office_referrals.created_at',
+                'office_referrals.updated_at',
                 'cases.case_number',
                 DB::raw('COALESCE(cases.student_name, users.name) as student_name'),
                 DB::raw('COALESCE(cases.student_number, users.student_number) as student_number')
@@ -473,7 +479,13 @@ class CaseController extends Controller
             ->leftJoin('cases', 'office_referrals.case_id', '=', 'cases.id')
             ->leftJoin('users', 'cases.student_id', '=', 'users.id')
             ->select(
-                'office_referrals.*',
+                'office_referrals.id',
+                'office_referrals.case_id',
+                'office_referrals.office',
+                'office_referrals.reason',
+                'office_referrals.status',
+                'office_referrals.created_at',
+                'office_referrals.updated_at',
                 'cases.case_number',
                 DB::raw('COALESCE(cases.student_name, users.name) as student_name'),
                 DB::raw('COALESCE(cases.student_number, users.student_number) as student_number')
@@ -572,27 +584,40 @@ class CaseController extends Controller
 
     public function create()
     {
-        return view('counselor.cases.create');
+        $students = DB::table('users')
+            ->where('role', 'student')
+            ->orderBy('name')
+            ->get(['id', 'name', 'email', 'student_number']);
+
+        return view('counselor.cases.create', compact('students'));
     }
 
     public function store(Request $request)
     {
+        // Cases always belong to a school-provisioned student account.
         $validated = $request->validate([
-            'student_name'   => 'required|string|max:255',
-            'student_number' => 'nullable|string|max:50',
-            'year_section'   => 'nullable|string|max:100',
-            'concern_type'   => 'required|string|max:100',
-            'summary'        => 'required|string|min:10',
+            'student_id'   => [
+                'required',
+                \Illuminate\Validation\Rule::exists('users', 'id')->where('role', 'student'),
+            ],
+            'year_section' => 'nullable|string|max:100',
+            'concern_type' => 'required|string|max:100',
+            'summary'      => 'required|string|min:10',
+        ], [
+            'student_id.required' => 'Please select the student from the list.',
+            'student_id.exists'   => 'Please select a registered student from the list.',
         ]);
+
+        $student = DB::table('users')->where('id', $validated['student_id'])->first();
 
         $caseNumber = 'CASE-' . strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6));
 
         $id = DB::table('cases')->insertGetId([
             'case_number'    => $caseNumber,
-            'student_id'     => null,
+            'student_id'     => $student->id,
             'counselor_id'   => auth()->id(),
-            'student_name'   => $validated['student_name'],
-            'student_number' => $validated['student_number'] ?? null,
+            'student_name'   => $student->name,
+            'student_number' => $student->student_number,
             'year_section'   => $validated['year_section'] ?? null,
             'concern_type'   => $validated['concern_type'],
             'summary'        => $validated['summary'],
@@ -606,4 +631,37 @@ class CaseController extends Controller
             ->with('success', 'Case created successfully.');
     }
 
+    public function declineReferral($id)
+    {
+        $updated = \Illuminate\Support\Facades\DB::table('referrals')
+            ->where('id', $id)
+            ->where('status', 'Pending')
+            ->update([
+                'status' => 'Closed', // 'Declined' is not allowed by the status column; Closed = declined/handled
+                'updated_at' => now(),
+            ]);
+
+        if (!$updated) {
+            return back()->with('error', 'Referral not found or already handled.');
+        }
+
+        return back()->with('success', 'Teacher referral declined and closed.');
+    }
+
+    public function declineRequest($id)
+    {
+        $updated = \Illuminate\Support\Facades\DB::table('counseling_requests')
+            ->where('id', $id)
+            ->where('status', 'Pending')
+            ->update([
+                'status' => 'Closed', // 'Declined' is not allowed by the status column; Closed = declined/handled
+                'updated_at' => now(),
+            ]);
+
+        if (!$updated) {
+            return back()->with('error', 'Request not found or already handled.');
+        }
+
+        return back()->with('success', 'Student counseling request declined and closed.');
+    }
 }

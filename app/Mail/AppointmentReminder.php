@@ -12,15 +12,18 @@ class AppointmentReminder extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $appointment;
-    public $studentName;
-    public $caseNumber;
+    /** Values read by resources/views/emails/appointment_reminder.blade.php as $data['key']. */
+    public array $data;
 
-    public function __construct($appointment, $studentName, $caseNumber)
+    public function __construct($appointment, $studentName, $caseNumber = null)
     {
-        $this->appointment = $appointment;
-        $this->studentName = $studentName;
-        $this->caseNumber = $caseNumber;
+        $this->data = [
+            'student_name' => $studentName,
+            'datetime'     => data_get($appointment, 'appointment_datetime'),
+            'location'     => data_get($appointment, 'location'),
+            'purpose'      => data_get($appointment, 'purpose'),
+            'case_number'  => $caseNumber,
+        ];
     }
 
     public function envelope(): Envelope
@@ -34,11 +37,6 @@ class AppointmentReminder extends Mailable
     {
         return new Content(
             view: 'emails.appointment_reminder',
-            with: [
-                'appointment' => $this->appointment,
-                'studentName' => $this->studentName,
-                'caseNumber' => $this->caseNumber,
-            ],
         );
     }
 }

@@ -63,11 +63,20 @@
             </div>
 
             <div style="margin-bottom: 20px;">
-                <p style="font-size: 12px; color: #9ca3af; margin: 0 0 6px 0;">Medical Notes / Reason for Referral</p>
+                <p style="font-size: 12px; color: #9ca3af; margin: 0 0 6px 0;">Reason for Referral</p>
                 <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; color: #374151; font-size: 14px;">
                     {{ $referral->reason ?? '—' }}
                 </div>
             </div>
+
+            @if(!empty($referral->notes_for_office))
+            <div style="margin-bottom: 20px;">
+                <p style="font-size: 12px; color: #9ca3af; margin: 0 0 6px 0;">Notes from Guidance Office</p>
+                <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; color: #374151; font-size: 14px; white-space: pre-line;">
+                    {{ $referral->notes_for_office }}
+                </div>
+            </div>
+            @endif
 
             <div style="margin-bottom: 20px;">
                 <p style="font-size: 12px; color: #9ca3af; margin: 0 0 4px 0;">Date Referred</p>
@@ -81,10 +90,14 @@
                     Completed
                 </span>
             @else
-                <a href="{{ route('clinic.referrals.complete', $referral->id) }}"
-                   style="display:inline-block; background:#16a34a; color:white; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500; text-decoration:none;">
-                    Mark Completed
-                </a>
+                <form method="POST" action="{{ route('clinic.referrals.complete', $referral->id) }}" style="display:inline; margin:0;"
+                      onsubmit="if (!confirm('Mark this referral as completed?')) { return false; } this.querySelector('button').disabled = true;">
+                    @csrf
+                    <button type="submit"
+                            style="display:inline-block; background:#16a34a; color:white; padding:8px 16px; border:0; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer;">
+                        Mark Completed
+                    </button>
+                </form>
             @endif
 
         </div>

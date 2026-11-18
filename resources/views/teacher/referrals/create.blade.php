@@ -13,7 +13,7 @@
                     Refer a Student
                 </h1>
                 <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                    Submit a guidance referral. Enter the student’s details and describe the concern.
+                    Submit a guidance referral. Select the student’s school account and describe the concern.
                 </p>
             </div>
 
@@ -30,26 +30,13 @@
             <form action="{{ route('teacher.referrals.store') }}" method="POST">
                 @csrf
 
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Student Full Name</label>
-                    <input type="text" name="student_name" value="{{ old('student_name') }}" required
-                           placeholder="e.g. Juan Dela Cruz"
-                           style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
-                </div>
+                @include('partials.student-picker', ['students' => $students])
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Student Number</label>
-                        <input type="text" name="student_number" value="{{ old('student_number') }}"
-                               placeholder="e.g. 02000421675"
-                               style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Year / Section</label>
-                        <input type="text" name="year_section" value="{{ old('year_section') }}"
-                               placeholder="e.g. BSIT 3rd Year - A507"
-                               style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
-                    </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">Year / Section (optional)</label>
+                    <input type="text" name="year_section" value="{{ old('year_section') }}"
+                           placeholder="e.g. BSIT 3rd Year - A507"
+                           style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
