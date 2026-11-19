@@ -47,6 +47,10 @@
 
             <form action="{{ route('counselor.appointments.store') }}" method="POST">
                 @csrf
+                @php $apptRequestId = old('appointment_request_id', session('appointment_request_id')); @endphp
+                @if($apptRequestId)
+                    <input type="hidden" name="appointment_request_id" value="{{ $apptRequestId }}">
+                @endif
 
                 <input type="hidden" name="case_id" value="{{ $case->id }}">
 

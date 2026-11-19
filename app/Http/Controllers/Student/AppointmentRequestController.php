@@ -6,12 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
+/**
+ * Student side of appointment requests.
+ * A request is saved in `appointment_requests`; the counselor turns it into a real appointment.
+ */
 class AppointmentRequestController extends Controller
 {
     public function create()
     {
-        // Optional: student's open cases (if any)
+        // Only this student's own open cases can be linked.
         $cases = DB::table('cases')
             ->where('student_id', Auth::id())
             ->whereIn('status', ['Pending', 'Ongoing', 'For Follow-up'])
@@ -25,23 +30,37 @@ class AppointmentRequestController extends Controller
     {
         $validated = $request->validate([
             'preferred_datetime' => 'required|date|after:now',
-            'purpose'            => 'nullable|string|max:1000',
-            'case_id'            => 'nullable|exists:cases,id',
+            'purpose'            => 'required|string|min:5|max:1000',
+            'case_id'            => [
+                'nullable',
+                Rule::exists('cases', 'id')->where('student_id', Auth::id()),
+            ],
+        ], [
+            'preferred_datetime.after' => 'Please choose a date and time in the future.',
+            'case_id.exists'           => 'Please choose one of your own cases.',
         ]);
 
-        DB::table('appointments')->insert([
-            'case_id'              => $validated['case_id'] ?? null,
-            'student_id'           => Auth::id(),
-            'counselor_id'         => null,
-            'appointment_datetime' => $validated['preferred_datetime'],
-            'location'             => null,
-            'purpose'              => $validated['purpose'] ?? 'Student-requested appointment',
-            'status'               => 'Requested',
-            'created_at'           => now(),
-            'updated_at'           => now(),
+        $hasOpenRequest = DB::table('appointment_requests')
+            ->where('student_id', Auth::id())
+            ->where('status', 'Pending')
+            ->exists();
+
+        if ($hasOpenRequest) {
+            return back()->withInput()
+                ->with('error', 'You already have a pending appointment request. Please wait for the guidance office to respond.');
+        }
+
+        DB::table('appointment_requests')->insert([
+            'student_id'         => Auth::id(),
+            'case_id'            => $validated['case_id'] ?? null,
+            'preferred_datetime' => $validated['preferred_datetime'],
+            'purpose'            => $validated['purpose'],
+            'status'             => 'Pending',
+            'created_at'         => now(),
+            'updated_at'         => now(),
         ]);
 
-        return redirect()->route('student.dashboard')
-            ->with('success', 'Appointment request submitted. The guidance office will confirm the schedule.');
+        return redirect()->route('student.appointments.index')
+            ->with('success', 'Appointment request sent. The guidance office will confirm the schedule.');
     }
 }

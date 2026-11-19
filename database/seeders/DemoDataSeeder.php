@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
  *  - CASE-DEMO01: Ana Ramos, from a counseling request, with a note and a scheduled appointment
  *  - CASE-DEMO02: Maria Santos, from a teacher referral, referred to the Clinic
  *  - CASE-DEMO03: Paolo Reyes, opened by the counselor, referred to the Disciplinary Office
+ *  - Appointment requests: Juan Dela Cruz (pending, no case yet), Maria Santos (declined with remarks)
  */
 class DemoDataSeeder extends Seeder
 {
@@ -219,6 +220,29 @@ class DemoDataSeeder extends Seeder
             'status'           => 'Pending',
             'created_at'       => $ts(1),
             'updated_at'       => $ts(1),
+        ]);
+
+        // ---- Appointment requests (before a case or schedule exists) ----
+        DB::table('appointment_requests')->insert([
+            'student_id'         => $juan->id,
+            'case_id'            => null,
+            'preferred_datetime' => $now->copy()->addDays(4)->setTime(15, 0),
+            'purpose'            => 'I would like to talk about my schedule and being late to class.',
+            'status'             => 'Pending',
+            'created_at'         => $ts(0),
+            'updated_at'         => $ts(0),
+        ]);
+
+        DB::table('appointment_requests')->insert([
+            'student_id'         => $maria->id,
+            'case_id'            => $case2,
+            'preferred_datetime' => $now->copy()->addDays(1)->setTime(7, 0),
+            'purpose'            => 'Follow-up after my clinic visit.',
+            'status'             => 'Declined',
+            'counselor_id'       => $counselor->id,
+            'counselor_remarks'  => 'The office opens at 8:00 AM. Please request a time between 8:00 AM and 5:00 PM.',
+            'created_at'         => $ts(2),
+            'updated_at'         => $ts(1),
         ]);
     }
 }

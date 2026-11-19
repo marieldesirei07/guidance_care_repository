@@ -8,7 +8,7 @@
             <div style="padding: 24px;">
 
                 <div style="margin-bottom: 24px;">
-                    <p style="font-size: 11px; font-weight: 600; color: #7c3aed; text-transform: uppercase; margin: 0 0 4px 0;">
+                    <p style="font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; margin: 0 0 4px 0;">
                         Student Portal
                     </p>
                     <h2 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0;">
@@ -18,6 +18,12 @@
                         Suggest a preferred date and time. The guidance counselor will confirm or reschedule.
                     </p>
                 </div>
+
+                @if (session('error'))
+                    <div style="margin-bottom: 16px; padding: 12px 16px; background: #fee2e2; color: #991b1b; border-radius: 8px; font-size: 14px;">
+                        {{ session('error') }}
+                    </div>
+                @endif
 
                 @if ($errors->any())
                     <div style="margin-bottom: 16px; padding: 12px 16px; background: #fee2e2; color: #991b1b; border-radius: 8px; font-size: 14px;">
@@ -29,7 +35,8 @@
                     </div>
                 @endif
 
-                <form action="{{ route('student.appointments.request.store') }}" method="POST">
+                <form action="{{ route('student.appointments.request.store') }}" method="POST"
+                      onsubmit="this.querySelector('button[type=submit]').disabled = true;">
                     @csrf
 
                     @if(isset($cases) && $cases->count())
@@ -54,22 +61,23 @@
                             Preferred Date & Time
                         </label>
                         <input type="datetime-local" name="preferred_datetime" required
+                               min="{{ now()->addHour()->format('Y-m-d\TH:i') }}"
                                value="{{ old('preferred_datetime') }}"
                                style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 14px;">
                     </div>
 
                     <div style="margin-bottom: 24px;">
                         <label style="display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px;">
-                            Purpose / Notes
+                            Purpose / Notes *
                         </label>
-                        <textarea name="purpose" rows="4"
+                        <textarea name="purpose" rows="4" required minlength="5"
                                   placeholder="Why do you want this appointment?"
                                   style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 14px;">{{ old('purpose') }}</textarea>
                     </div>
 
                     <div style="display: flex; gap: 12px;">
                         <button type="submit"
-                                style="background: #7c3aed; color: white; padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                                style="background: #2563eb; color: white; padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
                             Submit Request
                         </button>
                         <a href="{{ route('student.dashboard') }}"

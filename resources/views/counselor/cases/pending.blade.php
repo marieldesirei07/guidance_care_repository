@@ -169,6 +169,50 @@
             @endif
         </div>
 
+        {{-- Appointment Requests (students asking for a schedule) --}}
+        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-top: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid #f3f4f6;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Appointment Requests</h3>
+                <span style="font-size: 13px; color: #6b7280;">{{ $appointmentRequests->count() }} pending</span>
+            </div>
+            @if($appointmentRequests->isEmpty())
+                <p style="padding: 24px; margin: 0; font-size: 14px; color: #9ca3af;">No pending appointment requests.</p>
+            @else
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <thead>
+                            <tr style="background: #f9fafb; text-align: left;">
+                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Student</th>
+                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Preferred Time</th>
+                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Case</th>
+                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Requested</th>
+                                <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($appointmentRequests as $ar)
+                                <tr style="border-top: 1px solid #f3f4f6;">
+                                    <td style="padding: 14px 24px; color: #111827;">
+                                        {{ $ar->student_name }}
+                                        <br><span style="font-size: 12px; color: #6b7280;">{{ $ar->student_number }}</span>
+                                    </td>
+                                    <td style="padding: 14px 24px; color: #374151; font-size: 13px;">{{ \Carbon\Carbon::parse($ar->preferred_datetime)->format('M d, Y h:i A') }}</td>
+                                    <td style="padding: 14px 24px; color: #374151;">{{ $ar->case_number ?? '—' }}</td>
+                                    <td style="padding: 14px 24px; color: #6b7280;">{{ \Carbon\Carbon::parse($ar->created_at)->format('M d, Y') }}</td>
+                                    <td style="padding: 14px 24px; text-align: right; white-space: nowrap;">
+                                        <a href="{{ route('counselor.appointment_requests.show', $ar->id) }}"
+                                           style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500;">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+
         {{-- Footer --}}
         <div style="margin-top: 48px; padding: 24px 0; text-align: center;">
             <p style="font-size: 12px; color: #9ca3af; margin: 0;">

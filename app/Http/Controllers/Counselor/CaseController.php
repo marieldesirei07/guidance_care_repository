@@ -142,7 +142,20 @@ class CaseController extends Controller
             ->orderBy('counseling_requests.created_at', 'desc')
             ->get();
 
-        return view('counselor.cases.pending', compact('referrals', 'requests'));
+        $appointmentRequests = DB::table('appointment_requests')
+            ->join('users', 'appointment_requests.student_id', '=', 'users.id')
+            ->leftJoin('cases', 'appointment_requests.case_id', '=', 'cases.id')
+            ->select(
+                'appointment_requests.*',
+                'users.name as student_name',
+                'users.student_number',
+                'cases.case_number'
+            )
+            ->where('appointment_requests.status', 'Pending')
+            ->orderBy('appointment_requests.created_at', 'desc')
+            ->get();
+
+        return view('counselor.cases.pending', compact('referrals', 'requests', 'appointmentRequests'));
     }
 
     public function allReferrals(Request $request)

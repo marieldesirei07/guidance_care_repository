@@ -17,7 +17,7 @@
                 Hello {{ $data['student_name'] ?? 'Student' }},
             </p>
             <p style="margin:0 0 20px 0; font-size:14px; line-height:1.6; color:#374151;">
-                A teacher has referred you for guidance support. The Guidance Office may contact you to schedule assistance.
+                A teacher has referred you for guidance support. Please log in to GuidanceCare and open <strong>Teacher Referrals</strong> to accept or decline. The Guidance Office may contact you to schedule assistance.
             </p>
 
             <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:16px 18px; margin-bottom:20px;">

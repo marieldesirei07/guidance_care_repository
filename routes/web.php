@@ -84,7 +84,14 @@ Route::middleware(['auth'])->group(function () {
             ->orderBy('appointments.appointment_datetime', 'desc')
             ->get();
 
-        return view('student.appointments.index', compact('appointments'));
+        $appointmentRequests = \Illuminate\Support\Facades\DB::table('appointment_requests')
+            ->leftJoin('cases', 'appointment_requests.case_id', '=', 'cases.id')
+            ->select('appointment_requests.*', 'cases.case_number')
+            ->where('appointment_requests.student_id', auth()->id())
+            ->orderByDesc('appointment_requests.created_at')
+            ->get();
+
+        return view('student.appointments.index', compact('appointments', 'appointmentRequests'));
     })->name('student.appointments.index');
 
     Route::get('/student/appointments/request', [App\Http\Controllers\Student\AppointmentRequestController::class, 'create'])
@@ -202,6 +209,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('counselor.pending.requests');
     Route::get('/counselor/pending/referral/{id}', [CaseController::class, 'showPendingReferral'])
         ->name('counselor.pending.referral');
+    // Appointment requests from students (before a case or schedule exists)
+    Route::get('/counselor/pending/appointment-request/{id}', [\App\Http\Controllers\Counselor\AppointmentRequestController::class, 'show'])
+        ->name('counselor.appointment_requests.show');
+    Route::post('/counselor/appointment-requests/{id}/accept', [\App\Http\Controllers\Counselor\AppointmentRequestController::class, 'accept'])
+        ->name('counselor.appointment_requests.accept');
+    Route::post('/counselor/appointment-requests/{id}/decline', [\App\Http\Controllers\Counselor\AppointmentRequestController::class, 'decline'])
+        ->name('counselor.appointment_requests.decline');
+
     Route::get('/counselor/pending/request/{id}', [CaseController::class, 'showPendingRequest'])
         ->name('counselor.pending.request');
     Route::delete('/counselor/pending/referrals/{id}', [CaseController::class, 'destroyPendingReferral'])

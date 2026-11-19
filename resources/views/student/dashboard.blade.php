@@ -55,6 +55,7 @@
                 </div>
                 <div class="gc-actions">
                     <a href="{{ route('student.request.create') }}" class="gc-btn gc-btn-primary">+ Request Counseling</a>
+                    <a href="{{ route('student.appointments.request') }}" class="gc-btn gc-btn-secondary">Request Appointment</a>
                     <a href="{{ route('student.teacher_referrals') }}" class="gc-btn gc-btn-secondary">Teacher Referrals</a>
                 </div>
             </div>

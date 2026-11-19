@@ -66,6 +66,7 @@ class AppointmentController extends Controller
         'appointment_datetime' => 'required|date|after:now',
         'location'             => 'nullable|string|max:255',
         'purpose'              => 'nullable|string|max:1000',
+        'appointment_request_id' => 'nullable|integer',
     ]);
 
     // Prefer form student_id; if missing, take it from the case
@@ -75,7 +76,7 @@ class AppointmentController extends Controller
         $studentId = $case->student_id ?? null;
     }
 
-    DB::table('appointments')->insert([
+    $appointmentId = DB::table('appointments')->insertGetId([
         'case_id'              => $validated['case_id'],
         'student_id'           => $studentId,
         'counselor_id'         => auth()->id(),
@@ -86,6 +87,20 @@ class AppointmentController extends Controller
         'created_at'           => now(),
         'updated_at'           => now(),
     ]);
+
+    // If this appointment answers a student's appointment request, mark that request as scheduled.
+    if (!empty($validated['appointment_request_id'])) {
+        DB::table('appointment_requests')
+            ->where('id', $validated['appointment_request_id'])
+            ->where('status', 'Pending')
+            ->update([
+                'status'         => 'Scheduled',
+                'case_id'        => $validated['case_id'],
+                'appointment_id' => $appointmentId,
+                'counselor_id'   => auth()->id(),
+                'updated_at'     => now(),
+            ]);
+    }
 
     $emailStatus = null;
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewReferralForCounselor;
 use App\Mail\TeacherReferralNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,8 +68,80 @@ class ReferralController extends Controller
             'updated_at'     => now(),
         ]);
 
+        $emailNote = $this->sendReferralEmails($student, $request);
+
         return redirect()->route('teacher.dashboard')
-            ->with('success', 'Referral submitted successfully.');
+            ->with('success', 'Referral submitted successfully.' . $emailNote);
+    }
+
+    /**
+     * Notify the student (to accept or decline) and every counselor (new item in the Pending Queue).
+     * Mail problems never block the referral itself.
+     */
+    private function sendReferralEmails($student, Request $request): string
+    {
+        $teacherName = auth()->user()->name;
+        $gapMs       = (int) config('guidancecare.mail_gap_ms', 0);
+        $sent        = 0;
+        $failed      = 0;
+
+        $send = function (callable $mail) use (&$sent, &$failed, $gapMs) {
+            if ($sent + $failed > 0 && $gapMs > 0) {
+                usleep($gapMs * 1000);
+            }
+            try {
+                $mail();
+                $sent++;
+            } catch (\Throwable $e) {
+                // Mailtrap's free sandbox refuses bursts ("Too many emails per second"): wait and retry once.
+                if (str_contains($e->getMessage(), 'Too many emails')) {
+                    usleep(2500 * 1000);
+                    try {
+                        $mail();
+                        $sent++;
+                        return;
+                    } catch (\Throwable $retryError) {
+                        $e = $retryError;
+                    }
+                }
+                $failed++;
+                report($e);
+            }
+        };
+
+        // Student copy is optional (see config/guidancecare.php: referral_email_student).
+        if (config('guidancecare.referral_email_student') && !empty($student->email)) {
+            $send(fn () => Mail::to($student->email)->send(new TeacherReferralNotification(
+                ['concern_type' => $request->concern_type, 'urgency' => $request->urgency],
+                $teacherName,
+                $student->name
+            )));
+        }
+
+        $counselors = DB::table('users')->where('role', 'counselor')->whereNotNull('email')->get(['name', 'email']);
+        foreach ($counselors as $counselor) {
+            $send(fn () => Mail::to($counselor->email)->send(new NewReferralForCounselor([
+                'counselor_name' => $counselor->name,
+                'student_name'   => $student->name,
+                'student_number' => $student->student_number,
+                'teacher_name'   => $teacherName,
+                'concern_type'   => $request->concern_type,
+                'urgency'        => $request->urgency,
+                'pending_url'    => route('counselor.pending'),
+            ])));
+        }
+
+        if ($failed > 0) {
+            return " ({$failed} notification email(s) could not be sent.)";
+        }
+
+        if ($sent === 0) {
+            return '';
+        }
+
+        return config('guidancecare.referral_email_student')
+            ? ' The student and the guidance office were notified by email.'
+            : ' The guidance office was notified by email.';
     }
 
     public function index()
