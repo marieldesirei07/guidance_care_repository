@@ -1,5 +1,7 @@
 # GuidanceCare — 2-Laptop Live Test (Friday, 20 November 2026)
 
+> **LAN-only alternative.** This test needs both laptops on the same Wi-Fi or hotspot because the browser connects straight to the host laptop's IP. To test from **any network** (mobile data, home Wi-Fi), use the Cloudflare Tunnel steps in `docs/PUBLIC_ACCESS.md` instead.
+
 **Goal:** prove that what a student or teacher submits on one laptop appears live on the counselor's screen on another laptop, and that the offices see their referrals, over the same Wi-Fi.
 
 **Who:** Mariel (host laptop, runs Laragon) + one member (second laptop, browser only).

@@ -108,10 +108,15 @@ class CaseController extends Controller
             'status' => 'required|in:Pending,Ongoing,For Follow-up,Completed,Referred,Closed',
         ]);
 
+        $old = DB::table('cases')->where('id', $id)->value('status');
+
         DB::table('cases')->where('id', $id)->update([
             'status' => $request->status,
+            'closed_at' => in_array($request->status, ['Closed', 'Completed']) ? now()->toDateString() : null,
             'updated_at' => now(),
         ]);
+
+        \App\Support\ActivityLog::record('case.status_changed', 'cases', $id, ['from' => $old, 'to' => $request->status]);
 
         return back()->with('success', 'Case status updated successfully.');
     }
@@ -416,7 +421,6 @@ class CaseController extends Controller
                 'office_referrals.created_at',
                 'office_referrals.updated_at',
                 'cases.case_number',
-                'cases.concern_type',
                 DB::raw('COALESCE(cases.student_name, users.name) as student_name'),
                 DB::raw('COALESCE(cases.student_number, users.student_number) as student_number')
             )
@@ -446,7 +450,6 @@ class CaseController extends Controller
                 'office_referrals.created_at',
                 'office_referrals.updated_at',
                 'cases.case_number',
-                'cases.concern_type',
                 DB::raw('COALESCE(cases.student_name, users.name) as student_name'),
                 DB::raw('COALESCE(cases.student_number, users.student_number) as student_number'),
                 'cases.year_section'
@@ -560,45 +563,59 @@ class CaseController extends Controller
         return view('counselor.cases.pending_requests', compact('requests', 'level'));
     }
 
+    // Counseling records are never erased. "Delete" closes them; notes, appointments and
+    // office referrals stay attached to the case for accountability.
     public function destroy($id)
     {
-        if (\Schema::hasTable('case_notes')) {
-            DB::table('case_notes')->where('case_id', $id)->delete();
-        }
-        if (\Schema::hasTable('appointments')) {
-            DB::table('appointments')->where('case_id', $id)->delete();
-        }
-        if (\Schema::hasTable('office_referrals')) {
-            DB::table('office_referrals')->where('case_id', $id)->delete();
-        }
+        DB::table('cases')->where('id', $id)->update([
+            'status' => 'Closed',
+            'closed_at' => now()->toDateString(),
+            'updated_at' => now(),
+        ]);
 
-        DB::table('cases')->where('id', $id)->delete();
+        \App\Support\ActivityLog::record('case.closed', 'cases', $id);
 
-        return redirect()->route('counselor.cases')->with('success', 'Case deleted successfully.');
+        return redirect()->route('counselor.cases')->with('success', 'Case closed. Its notes and history are kept.');
     }
 
     public function destroyOfficeReferral($id)
     {
-        DB::table('office_referrals')->where('id', $id)->delete();
-        return back()->with('success', 'Office referral deleted.');
+        DB::table('office_referrals')->where('id', $id)
+            ->whereNotIn('status', ['Completed', 'Closed'])
+            ->update(['status' => 'Closed', 'updated_at' => now()]);
+
+        \App\Support\ActivityLog::record('office_referral.closed', 'office_referrals', $id);
+
+        return back()->with('success', 'Office referral closed.');
     }
 
     public function destroyPendingReferral($id)
     {
-        DB::table('referrals')->where('id', $id)->delete();
-        return back()->with('success', 'Teacher referral deleted.');
+        DB::table('referrals')->where('id', $id)
+            ->where('status', '!=', 'Closed')
+            ->update(['status' => 'Closed', 'updated_at' => now()]);
+
+        \App\Support\ActivityLog::record('referral.closed', 'referrals', $id);
+
+        return back()->with('success', 'Teacher referral closed. The record is kept.');
     }
 
     public function destroyPendingRequest($id)
     {
-        DB::table('counseling_requests')->where('id', $id)->delete();
-        return back()->with('success', 'Student request deleted.');
+        DB::table('counseling_requests')->where('id', $id)
+            ->where('status', '!=', 'Closed')
+            ->update(['status' => 'Closed', 'updated_at' => now()]);
+
+        \App\Support\ActivityLog::record('counseling_request.closed', 'counseling_requests', $id);
+
+        return back()->with('success', 'Student request closed. The record is kept.');
     }
 
     public function create()
     {
         $students = DB::table('users')
             ->where('role', 'student')
+            ->where('is_active', true)
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'student_number']);
 

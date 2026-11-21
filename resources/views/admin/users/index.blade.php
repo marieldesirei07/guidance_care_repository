@@ -72,6 +72,9 @@
                                         <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#dbeafe; color:#1d4ed8;">
                                             {{ ucfirst($u->role) }}
                                         </span>
+                                        @unless($u->is_active ?? true)
+                                            <span style="display:inline-block; margin-left:6px; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#f3f4f6; color:#6b7280;">Inactive</span>
+                                        @endunless
                                     </td>
                                     <td style="padding: 14px 24px; color: #6b7280; font-size: 13px;">
                                         {{ $u->student_number ?? $u->employee_id ?? '—' }}
@@ -82,17 +85,12 @@
                                             Edit
                                         </a>
                                         <form action="{{ route('admin.users.destroy', $u->id) }}" method="POST" style="display: inline;"
-                                              onsubmit="return confirm('Delete this user?');">
+                                              onsubmit="return confirm('{{ ($u->is_active ?? true) ? 'Deactivate this account? They will not be able to sign in, but their records are kept.' : 'Reactivate this account?' }}');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Delete"
-                                                    style="display: inline-flex; align-items: center; justify-content: center;
-                                                           width: 36px; height: 36px; padding: 0;
-                                                           background: #fce7f3; color: #e11d48;
-                                                           border: none; border-radius: 10px; cursor: pointer; vertical-align: middle;">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
+                                            <button type="submit" title="{{ ($u->is_active ?? true) ? 'Deactivate' : 'Reactivate' }}"
+                                                    style="display: inline-block; padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; vertical-align: middle; {{ ($u->is_active ?? true) ? 'background:#fef3c7; color:#b45309;' : 'background:#dcfce7; color:#15803d;' }}">
+                                                {{ ($u->is_active ?? true) ? 'Deactivate' : 'Reactivate' }}
                                             </button>
                                         </form>
                                     </td>

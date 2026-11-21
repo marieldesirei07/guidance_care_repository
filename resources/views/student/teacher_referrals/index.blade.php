@@ -77,14 +77,16 @@
                                                style="display:inline-block; padding:6px 12px; background:#2563eb; color:#fff; border-radius:6px; font-size:12px; font-weight:500; text-decoration:none;">
                                                 View Details
                                             </a>
-                                            <form action="{{ route('student.teacher_referrals.destroy', $ref->id) }}" method="POST" style="margin:0;" onsubmit="return confirm('Delete this referral from your list?')">
+                                            @if(($ref->student_response ?? 'Pending') === 'Pending')
+                                            <form action="{{ route('student.teacher_referrals.destroy', $ref->id) }}" method="POST" style="margin:0;" onsubmit="return confirm('Decline this referral? The Guidance Office keeps the record.')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
-                                                        style="display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; background:#fef2f2; color:#dc2626; border:none; border-radius:6px; cursor:pointer;">
-                                                    🗑
+                                                        style="display:inline-block; padding:6px 12px; background:#fef3c7; color:#b45309; border:none; border-radius:6px; font-size:12px; font-weight:500; cursor:pointer;">
+                                                    Decline
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

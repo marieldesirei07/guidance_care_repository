@@ -28,12 +28,12 @@ class OfficeReferralController extends Controller
     {
         $request->validate([
             'case_id' => 'required|exists:cases,id',
-            'office' => 'required|in:Clinic,Disciplinary,Other',
+            'office' => 'required|in:Clinic,Disciplinary',
             'reason' => 'required|string|min:10',
             'notes_for_office' => 'nullable|string',
         ]);
 
-        DB::table('office_referrals')->insert([
+        $officeReferralId = DB::table('office_referrals')->insertGetId([
             'case_id' => $request->case_id,
             'referred_by' => Auth::id(),
             'office' => $request->office,
@@ -49,6 +49,8 @@ class OfficeReferralController extends Controller
             'status' => 'Referred',
             'updated_at' => now(),
         ]);
+
+        \App\Support\ActivityLog::record('office_referral.created', 'office_referrals', $officeReferralId, ['case_id' => (int) $request->case_id, 'office' => $request->office]);
 
         return redirect()->route('counselor.cases.show', $request->case_id)
             ->with('success', 'Case successfully referred to ' . $request->office . '.');

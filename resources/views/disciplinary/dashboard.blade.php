@@ -8,7 +8,6 @@
         ->select(
             'office_referrals.*',
             'cases.case_number',
-            'cases.concern_type',
             \Illuminate\Support\Facades\DB::raw('COALESCE(cases.student_name, users.name) as student_name'),
             \Illuminate\Support\Facades\DB::raw('COALESCE(cases.student_number, users.student_number) as student_number')
         )
@@ -74,7 +73,6 @@
                             <tr>
                                 <th>Case No.</th>
                                 <th>Student</th>
-                                <th>Concern</th>
                                 <th>Reason for Referral</th>
                                 <th>Status</th>
                                 <th>Date</th>
@@ -91,7 +89,6 @@
                                             <br><span class="gc-muted">{{ $ref->student_number }}</span>
                                         @endif
                                     </td>
-                                    <td>{{ $ref->concern_type ?? '—' }}</td>
                                     <td class="gc-cell-clip">{{ \Illuminate\Support\Str::limit($ref->reason ?? '', 50) }}</td>
                                     <td>
                                         <x-gc-status-badge :status="$ref->status ?? 'Pending'"

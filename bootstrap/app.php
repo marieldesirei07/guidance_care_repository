@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+    // Trust the proxy in front of Laravel (Cloudflare Tunnel) so HTTPS URLs,
+    // secure cookies and CSRF work. Harmless on plain LAN access.
+    $middleware->trustProxies(at: '*');
+
     $middleware->alias([
         'role' => \App\Http\Middleware\RoleMiddleware::class,
     ]);

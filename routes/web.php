@@ -62,17 +62,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/student/requests/{id}', [App\Http\Controllers\Student\CounselingRequestController::class, 'show'])
         ->name('student.requests.show');
 
+    // Cancel a still-pending request. The row is kept (status Closed) so the history stays.
     Route::delete('/student/requests/{id}', function ($id) {
-        $deleted = \Illuminate\Support\Facades\DB::table('counseling_requests')
+        $cancelled = \Illuminate\Support\Facades\DB::table('counseling_requests')
             ->where('id', $id)
             ->where('student_id', auth()->id())
-            ->delete();
+            ->where('status', 'Pending')
+            ->update(['status' => 'Closed', 'updated_at' => now()]);
 
-        if (!$deleted) {
-            return back()->with('error', 'Request not found or not allowed.');
+        if (!$cancelled) {
+            return back()->with('error', 'Only a pending request can be cancelled.');
         }
 
-        return back()->with('success', 'Request deleted.');
+        \App\Support\ActivityLog::record('counseling_request.cancelled_by_student', 'counseling_requests', $id);
+
+        return back()->with('success', 'Request cancelled.');
     })->name('student.requests.destroy');
 
     // My Appointments (View All)
@@ -121,17 +125,21 @@ Route::middleware(['auth'])->group(function () {
         return view('student.appointments.show', compact('appointment'));
     })->name('student.appointments.show');
 
+    // Cancel an upcoming appointment. The row is kept (status Cancelled) so the counselor sees it.
     Route::delete('/student/appointments/{id}', function ($id) {
-        $deleted = \Illuminate\Support\Facades\DB::table('appointments')
+        $cancelled = \Illuminate\Support\Facades\DB::table('appointments')
             ->where('id', $id)
             ->where('student_id', auth()->id())
-            ->delete();
+            ->whereIn('status', ['Scheduled', 'Rescheduled'])
+            ->update(['status' => 'Cancelled', 'updated_at' => now()]);
 
-        if (!$deleted) {
-            return back()->with('error', 'Appointment not found or not allowed.');
+        if (!$cancelled) {
+            return back()->with('error', 'Only a scheduled appointment can be cancelled.');
         }
 
-        return back()->with('success', 'Appointment deleted.');
+        \App\Support\ActivityLog::record('appointment.cancelled_by_student', 'appointments', $id);
+
+        return back()->with('success', 'Appointment cancelled. The Guidance Office can see this.');
     })->name('student.appointments.destroy');
 
     // Teacher Referrals
@@ -144,17 +152,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/student/teacher-referrals/{id}/respond', [App\Http\Controllers\Student\TeacherReferralController::class, 'respond'])
         ->name('student.teacher_referrals.respond');
 
+    // A student cannot erase a teacher's referral; "remove" records a decline instead.
     Route::delete('/student/teacher-referrals/{id}', function ($id) {
-        $deleted = \Illuminate\Support\Facades\DB::table('referrals')
+        $declined = \Illuminate\Support\Facades\DB::table('referrals')
             ->where('id', $id)
             ->where('student_id', auth()->id())
-            ->delete();
+            ->where('student_response', 'Pending')
+            ->update(['student_response' => 'Declined', 'updated_at' => now()]);
 
-        if (!$deleted) {
-            return back()->with('error', 'Referral not found or not allowed.');
+        if (!$declined) {
+            return back()->with('error', 'This referral was already answered and cannot be removed.');
         }
 
-        return back()->with('success', 'Referral deleted.');
+        \App\Support\ActivityLog::record('referral.declined_by_student', 'referrals', $id);
+
+        return back()->with('success', 'Referral declined. The Guidance Office keeps the record.');
     })->name('student.teacher_referrals.destroy');
 
     }); // end role group
@@ -178,17 +190,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/teacher/referrals/{id}', [ReferralController::class, 'show'])
         ->name('teacher.referrals.show');
 
+    // Withdraw a referral the counselor has not acted on yet (kept as Closed).
     Route::delete('/teacher/referrals/{id}', function ($id) {
-        $deleted = \Illuminate\Support\Facades\DB::table('referrals')
+        $withdrawn = \Illuminate\Support\Facades\DB::table('referrals')
             ->where('id', $id)
             ->where('teacher_id', auth()->id())
-            ->delete();
+            ->where('status', 'Pending')
+            ->update(['status' => 'Closed', 'updated_at' => now()]);
 
-        if (!$deleted) {
-            return back()->with('error', 'Referral not found or not allowed.');
+        if (!$withdrawn) {
+            return back()->with('error', 'Only a pending referral can be withdrawn.');
         }
 
-        return back()->with('success', 'Referral deleted.');
+        \App\Support\ActivityLog::record('referral.withdrawn_by_teacher', 'referrals', $id);
+
+        return back()->with('success', 'Referral withdrawn.');
     })->name('teacher.referrals.destroy');
     
     }); // end role group
@@ -291,15 +307,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/counselor/referrals', [CaseController::class, 'allReferrals'])->name('counselor.referrals');
     Route::get('/counselor/requests', [CaseController::class, 'allRequests'])->name('counselor.requests');
 
-    Route::delete('/counselor/referrals/{id}', function ($id) {
-        \Illuminate\Support\Facades\DB::table('referrals')->where('id', $id)->delete();
-        return back()->with('success', 'Referral deleted.');
-    })->name('counselor.referrals.destroy');
+    // "Delete" closes the record instead, so intake history is never lost.
+    Route::delete('/counselor/referrals/{id}', [CaseController::class, 'destroyPendingReferral'])
+        ->name('counselor.referrals.destroy');
 
-    Route::delete('/counselor/requests/{id}', function ($id) {
-        \Illuminate\Support\Facades\DB::table('counseling_requests')->where('id', $id)->delete();
-        return back()->with('success', 'Request deleted.');
-    })->name('counselor.requests.destroy');
+    Route::delete('/counselor/requests/{id}', [CaseController::class, 'destroyPendingRequest'])
+        ->name('counselor.requests.destroy');
 
     }); // end role group
 
@@ -312,13 +325,23 @@ Route::middleware(['auth'])->group(function () {
 
     // Mark completed (POST + CSRF form; a GET link could be triggered by accident)
     Route::post('/clinic/referrals/{id}/complete', function ($id) {
-        \Illuminate\Support\Facades\DB::table('office_referrals')
+        $done = \Illuminate\Support\Facades\DB::table('office_referrals')
             ->where('id', $id)
             ->where('office', 'Clinic')
+            ->whereNotIn('status', ['Completed', 'Closed'])
             ->update([
-                'status' => 'Completed',
-                'updated_at' => now(),
+                'status'       => 'Completed',
+                'handled_by'   => auth()->id(),
+                'completed_at' => now(),
+                'updated_at'   => now(),
             ]);
+
+        if (!$done) {
+            return redirect()->route('clinic.dashboard')
+                ->with('error', 'This referral was already completed or is not assigned to the Clinic.');
+        }
+
+        \App\Support\ActivityLog::record('office_referral.completed', 'office_referrals', $id, ['office' => 'Clinic']);
 
         return redirect()->route('clinic.dashboard')
             ->with('success', 'Referral marked as completed.');
@@ -343,13 +366,23 @@ Route::middleware(['auth'])->group(function () {
 
     // Complete MUST be before /referrals/{id}
     Route::post('/disciplinary/referrals/{id}/complete', function ($id) {
-        \Illuminate\Support\Facades\DB::table('office_referrals')
+        $done = \Illuminate\Support\Facades\DB::table('office_referrals')
             ->where('id', $id)
             ->where('office', 'Disciplinary')
+            ->whereNotIn('status', ['Completed', 'Closed'])
             ->update([
-                'status' => 'Completed',
-                'updated_at' => now(),
+                'status'       => 'Completed',
+                'handled_by'   => auth()->id(),
+                'completed_at' => now(),
+                'updated_at'   => now(),
             ]);
+
+        if (!$done) {
+            return redirect()->route('disciplinary.dashboard')
+                ->with('error', 'This referral was already resolved or is not assigned to the Disciplinary Office.');
+        }
+
+        \App\Support\ActivityLog::record('office_referral.completed', 'office_referrals', $id, ['office' => 'Disciplinary']);
 
         return redirect()->route('disciplinary.dashboard')
             ->with('success', 'Referral marked as resolved.');
@@ -376,7 +409,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/users', function () {
         $role = request('role');
         $q = \Illuminate\Support\Facades\DB::table('users')
-            ->select('id', 'name', 'email', 'role', 'student_number', 'employee_id', 'created_at')
+            ->select('id', 'name', 'email', 'role', 'student_number', 'employee_id', 'is_active', 'created_at')
             ->orderBy('name');
 
         if ($role) {
@@ -453,16 +486,22 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     })->name('admin.users.update');
 
+    // Accounts are never deleted (that would erase or block counseling history).
+    // This toggles them: active -> deactivated (cannot sign in), deactivated -> active again.
     Route::delete('/admin/users/{id}', function ($id) {
         $user = \App\Models\User::findOrFail($id);
 
         if ((int) $user->id === (int) auth()->id()) {
-            return back()->with('error', 'You cannot delete your own account.');
+            return back()->with('error', 'You cannot deactivate your own account.');
         }
 
-        $user->delete();
+        $user->is_active = ! $user->is_active;
+        $user->save();
 
-        return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
+        \App\Support\ActivityLog::record($user->is_active ? 'user.reactivated' : 'user.deactivated', 'users', $user->id);
+
+        return redirect()->route('admin.users.index')->with('success',
+            $user->is_active ? "{$user->name} can sign in again." : "{$user->name} is deactivated and can no longer sign in. Their records are kept.");
     })->name('admin.users.destroy');
 
     }); // end role group

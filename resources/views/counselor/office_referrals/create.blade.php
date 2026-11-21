@@ -39,7 +39,6 @@
                             <option value="">-- Select Office --</option>
                             <option value="Clinic">School Clinic</option>
                             <option value="Disciplinary">Disciplinary Office</option>
-                            <option value="Other">Other</option>
                         </select>
                     </div>
 

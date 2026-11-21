@@ -91,3 +91,43 @@ Appointment-request table and flow; teacher-referral email to counselor; View De
 
 ### Plan for tomorrow (Friday, 20 Nov — Day 2 test + Day 3)
 2-laptop LAN test with one member (`docs/TWO_LAPTOP_TEST.md`); member clones the repository; UI pass on counselor, teacher and admin pages; admin summary counts.
+
+## Day 3 — Friday, 20 November 2026
+
+### 2-laptop LAN test (SQLite, fresh seed at 3:59 PM)
+Host: Mariel's laptop (Laragon, `http://172.20.10.6/guidancecare/public`). Member: second laptop on the same network, browser only. Every step was checked against the database after it was done.
+
+| # | Step | Result | Time | Database check |
+|---|---|---|---|---|
+| L1 | Student (Ana) submits counseling request | PASS | 4:17 PM | counseling_requests #3, Pending |
+| L2 | Counselor sees it in Pending Queue | PASS | 4:17 PM | — |
+| L3 | Teacher refers Maria Santos | PASS | 4:23 PM | referrals #4, Behavioral, High, Pending |
+| L4 | Counselor sees referral; Mailtrap "New teacher referral" | PASS | 4:23 PM | email received within seconds |
+| L5 | Student requests appointment (linked to CASE-DEMO01) | PASS | 4:28 PM | appointment_requests #3, Pending |
+| L6 | Counselor accepts and schedules; email to student | PASS | 4:30 PM | appointments #2 Scheduled; request #3 Scheduled, appointment_id 2 |
+| L7 | Student sees appointment; request shows Scheduled | PASS | 4:32 PM | — |
+| L8 | Case from L3 referral; office referral to Clinic | PASS | 4:55 PM | CASE-EYKRHF Referred; referral #4 Accepted; office_referrals #3 Clinic |
+| L9 | Clinic sees it, no case notes, Mark Completed | PASS | 4:57 PM | office_referrals #3 Completed |
+| L10 | Simultaneous student submit, teacher submit, counselor page load | PASS | 5:03 PM | counseling_requests #4, referrals #5; no error page (after `view:cache`) |
+| L11 | Student opens `/counselor/dashboard` | PASS | 5:07 PM | 403 Unauthorized access |
+
+**Result: 11 of 11 passed.** This is the SQLite baseline the Supabase build will be compared against.
+
+### Known issues seen during the test (already on the audit list, not failures)
+- Clinic list and detail still show the case concern type (B5, to hide).
+- "CASE-…" on the Clinic detail page is blue but not a link (E5).
+- Mark Completed saves only the status, not who or when (B8; `handled_by`, `completed_at` added in the Postgres schema).
+- Student appointment list has a delete icon on counselor-scheduled appointments (B2, to replace with cancel request).
+- Office referral form still offers "Other" (B6, to remove).
+- Dates from the browser are stored as `2026-11-21T10:00` while seeded dates are `2026-11-21 10:00:00`; displays correctly, to normalise.
+- Use neutral wording in demo test data (no text that reads like a crisis report).
+
+### Supabase migration progress (started 3:22 PM)
+- Backup: `database/backups/database_2026-11-20_pre-supabase.sqlite`.
+- Supabase schemas `guidancecare` (demo) and `guidancecare_test` (test) created, empty, `anon`/`authenticated` revoked.
+- Postgres baseline written: `database/schema/guidancecare_baseline.sql` + `database/migrations_pgsql/2026_11_20_000000_create_guidancecare_baseline.php`. Tested on a local Postgres 16: 16 tables, RLS on all, CHECK/RESTRICT/FK rules and the outsider lock behave as designed; seeder-shaped data fits.
+- `config/database.php`: `search_path` now read from `DB_SCHEMA`.
+- Guide for the connection: `docs/SUPABASE_CONNECT_GUIDE.md`.
+
+### Next
+Enable `pdo_pgsql`, switch `.env` to the Session pooler with `DB_SCHEMA=guidancecare_test`, `db:show`, then build and seed the test schema. Code fixes before the Supabase smoke test: B2/B3 deletes to status changes, admin delete to deactivate, remove office "Other".

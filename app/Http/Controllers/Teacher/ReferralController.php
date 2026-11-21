@@ -29,6 +29,7 @@ class ReferralController extends Controller
 
         $students = DB::table('users')
             ->where('role', 'student')
+            ->where('is_active', true)
             ->orderBy('name')
             ->get();
 

@@ -76,14 +76,12 @@
                                             View Details
                                         </a>
                                         <form action="{{ route('counselor.pending.referrals.destroy', $referral->id) }}" method="POST" style="display:inline; margin:0;"
-                                              onsubmit="return confirm('Delete this teacher referral?');">
+                                              onsubmit="return confirm('Close this record? It is kept in the history, not erased.');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Delete"
-                                                    style="display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; background:#fee2e2; border:1px solid #fecaca; border-radius:8px; cursor:pointer; padding:0;">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#dc2626" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m-7 0h8" />
-                                                </svg>
+                                            <button type="submit" title="Close"
+                                                    style="display: inline-block; background: #f3f4f6; color: #374151; padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; vertical-align: middle;">
+                                                Close
                                             </button>
                                         </form>
                                     </div>
