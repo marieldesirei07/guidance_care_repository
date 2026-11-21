@@ -139,7 +139,7 @@
 {{-- Desktop sidebar --}}
 <aside class="gc-sidebar" aria-label="{{ $gcPortal }} navigation">
     <a href="{{ url($gcItems[0][1]) }}" class="gc-brand">
-        <span class="gc-brand-mark" aria-hidden="true">GC</span>
+        <img src="{{ asset('images/guidancecare-logo.svg') }}" alt="" class="gc-brand-logo" width="36" height="36">
         <span class="gc-brand-text"><strong>GuidanceCare</strong><small>{{ $gcPortal }}</small></span>
     </a>
     {!! $gcNavHtml !!}
@@ -148,7 +148,7 @@
 {{-- Phone / small-tablet top bar + menu --}}
 <header class="gc-topbar">
     <a href="{{ url($gcItems[0][1]) }}" class="gc-brand">
-        <span class="gc-brand-mark" aria-hidden="true">GC</span>
+        <img src="{{ asset('images/guidancecare-logo.svg') }}" alt="" class="gc-brand-logo" width="36" height="36">
         <span class="gc-brand-text"><strong>GuidanceCare</strong><small>{{ $gcPortal }}</small></span>
     </a>
     <button type="button" class="gc-menu-btn" aria-expanded="false" aria-controls="gc-mobile-menu" aria-label="Open menu"

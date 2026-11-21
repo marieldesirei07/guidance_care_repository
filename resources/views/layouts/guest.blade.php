@@ -7,6 +7,9 @@
     <meta name="color-scheme" content="light">
 
     <title>GuidanceCare — Log in</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" href="{{ asset('images/guidancecare-logo.svg') }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('images/guidancecare-logo-180.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -21,8 +24,7 @@
         .gc-auth { min-height: 100vh; display: grid; grid-template-columns: 1fr; background: #f5f7fb; }
         .gc-auth-brand { background: var(--gc-primary); color: #fff; padding: 28px 24px; display: flex; flex-direction: column; gap: 20px; }
         .gc-auth-school { display: flex; align-items: center; gap: 12px; font-size: 13px; line-height: 1.35; color: #dce5f7; }
-        .gc-auth-school img { height: 44px; width: auto; background: #fff; border-radius: 8px; padding: 4px; }
-        .gc-auth-mark { width: 44px; height: 44px; flex: none; border-radius: 10px; background: var(--gc-accent); color: var(--gc-primary); display: grid; place-items: center; font-weight: 700; }
+        .gc-auth-logo { width: 56px; height: 56px; flex: none; border-radius: 12px; box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
         .gc-auth-brand h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.1; font-weight: 700; color: #fff; }
         .gc-auth-brand p { margin: 0; max-width: 36ch; color: #dce5f7; font-size: 15px; line-height: 1.55; }
         .gc-auth-note { display: none; align-items: flex-start; gap: 8px; font-size: 13px; color: #c9d6f2; }
@@ -59,12 +61,7 @@
     <div class="gc-auth">
         <section class="gc-auth-brand">
             <div class="gc-auth-school">
-                {{-- Put the official logo (with permission) at public/images/sti-logo.png and it appears here --}}
-                @if (file_exists(public_path('images/sti-logo.png')))
-                    <img src="{{ asset('images/sti-logo.png') }}" alt="STI College Global City">
-                @else
-                    <span class="gc-auth-mark" aria-hidden="true">GC</span>
-                @endif
+                <img src="{{ asset('images/guidancecare-logo.svg') }}" alt="GuidanceCare logo" class="gc-auth-logo" width="56" height="56">
                 <span>STI College Global City<br>Guidance Office</span>
             </div>
 

@@ -146,6 +146,7 @@
 
     .gc-sidebar { display: none; }
     .gc-brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; min-width: 0; }
+    .gc-brand-logo { width: 36px; height: 36px; flex: none; border-radius: 8px; box-shadow: 0 0 0 1px rgba(255,255,255,.3); }
     .gc-brand-mark { width: 36px; height: 36px; flex: none; border-radius: 8px; background: var(--gc-accent); color: var(--gc-primary); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
     .gc-brand-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
     .gc-brand-text strong { font-size: 15px; font-weight: 600; }
