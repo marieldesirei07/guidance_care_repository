@@ -131,3 +131,52 @@ Host: Mariel's laptop (Laragon, `http://172.20.10.6/guidancecare/public`). Membe
 
 ### Next
 Enable `pdo_pgsql`, switch `.env` to the Session pooler with `DB_SCHEMA=guidancecare_test`, `db:show`, then build and seed the test schema. Code fixes before the Supabase smoke test: B2/B3 deletes to status changes, admin delete to deactivate, remove office "Other".
+
+## Day 4 — Saturday, 21 November 2026
+
+### Code fixes (commit 626a082 on `feat/supabase-baseline`, plus config and guard below)
+- Deletes replaced by status changes: student Cancel (appointment, pending request), student Decline (teacher referral), teacher withdraw (pending referral), counselor Close (referral, request, case, office referral). No counseling record is erased.
+- Admin Deactivate / Reactivate instead of delete; deactivated users cannot sign in, are signed out, and disappear from student pickers.
+- Office referral "Other" removed (Clinic or Disciplinary only).
+- Clinic and Disciplinary no longer see the case concern type.
+- Mark Completed records `handled_by` and `completed_at`, and cannot run twice or on another office's referral.
+- Audit trail: `activity_logs` written for status changes, closes, office referrals, completions, cancellations, deactivation.
+- SQLite parity migration (`2026_11_21_000001`) and a guard (`0000_00_00_000000`) that stops the SQLite migrations from running on Postgres.
+- Speed: OPcache enabled in Laragon PHP; `DB_PERSISTENT` and `DB_EMULATE_PREPARES` options for the Supabase connection.
+
+### Supabase demo schema `guidancecare`
+- First attempt failed because plain `php artisan migrate` (without `--path`) ran the SQLite migrations and stopped at `fix_referrals_table`. The 16 empty leftover tables were checked (0 rows) and dropped; the schema was rebuilt with `migrate --path=database/migrations_pgsql` and seeded.
+- Verified on Supabase: 17 tables, RLS on all 17, owner `postgres`, 0 grants to `anon`/`authenticated`, 10 CHECK rules, 20 foreign keys, 0 cascading deletes.
+
+### Smoke test on Supabase (single host, every role, each step checked in the database)
+
+| # | Step | Test schema | Demo run 1 | Demo run 2 |
+|---|---|---|---|---|
+| L1 | Student counseling request | PASS | PASS | PASS |
+| L2 | Counselor Pending Queue shows new items | PASS | PASS | PASS |
+| L3 | Teacher referral + email | PASS | PASS | PASS |
+| L5 | Student appointment request (linked to case) | PASS | PASS | PASS |
+| L6 | Counselor accepts and schedules + email | PASS | PASS | PASS |
+| L7 | Student sees appointment; request Scheduled | PASS | PASS | PASS |
+| L8 | Case from referral, note, office referral to Clinic | PASS | PASS | PASS |
+| L9 | Clinic: no concern type or notes; Mark Completed with who/when; second attempt refused | PASS | PASS | PASS |
+| L9b | Disciplinary: Mark Resolved; Clinic cannot complete a Disciplinary referral | — | — | PASS |
+| L10 | 10 pages at once | PASS | PASS (2.8 s) | PASS (2.8 s) |
+| L11 | Cross-role URLs return 403 | PASS | PASS | PASS |
+| L12 | Student cancels appointment (kept as Cancelled) | PASS | PASS | PASS |
+| L13 | Audit log entries with correct actor | PASS | PASS | PASS |
+| — | Admin deactivate / sign-in refused / reactivate | PASS | — | — |
+| — | Forced password change (Liza Mendoza) | — | — | PASS |
+
+The two-laptop network path was proven on Day 3 (SQLite); it does not depend on the database.
+
+### Performance on Supabase (host on a phone hotspot)
+- Page without database work: 0.45 s → 0.03 s after OPcache.
+- Typical pages: 1.8–2.3 s → 0.8–1.4 s after OPcache, persistent connection and one-trip queries.
+- Query time on the Supabase server is about 0.002 s; the rest is network distance (Manila → Tokyo over mobile data). Use the best available Wi-Fi for the defense.
+
+### Known limitations (for the paper and defense)
+- Supabase needs internet; SQLite remains the offline fallback (`DB_CONNECTION=sqlite`, `php artisan migrate`, `config:cache`).
+- Supabase free plan pauses after about a week unused and has no automatic backups; open the dashboard the day before and export a copy.
+- Reminder emails need the scheduler running; Mailtrap sandbox limits emails.
+- Copies of student name/number still exist on some tables (audit B7, planned).

@@ -100,6 +100,11 @@ return [
             'prefix_indexes' => true,
             'search_path' => env('DB_SCHEMA', 'public'), // GuidanceCare: guidancecare or guidancecare_test
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // GuidanceCare: DB_PERSISTENT=true reuses the encrypted connection to Supabase between
+            // page loads instead of opening a new one every time (faster). Off unless set in .env.
+            'options' => extension_loaded('pdo_pgsql') ? array_filter([
+                PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
+            ]) : [],
         ],
 
         'sqlsrv' => [
