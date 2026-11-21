@@ -42,21 +42,13 @@
                 <div>
                     <div style="font-size: 11px; color: #6b7280; font-weight: 500; text-transform: uppercase;">Receiving Office</div>
                     <div style="margin-top: 6px;">
-                        @php $office = $referral->office ?? ''; @endphp
-                        <span style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500;
-                            @if($office === 'Disciplinary') background: #fef3c7; color: #b45309;
-                            @elseif($office === 'Clinic') background: #d1fae5; color: #065f46;
-                            @else background: #e5e7eb; color: #374151; @endif">
-                            {{ $office ?: '—' }}
-                        </span>
+                        <x-gc-office-badge :office="$referral->office ?? ''" />
                     </div>
                 </div>
                 <div>
                     <div style="font-size: 11px; color: #6b7280; font-weight: 500; text-transform: uppercase;">Status</div>
                     <div style="margin-top: 6px;">
-                        <span style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #dbeafe; color: #1d4ed8;">
-                            {{ $referral->status ?? 'Pending' }}
-                        </span>
+                        <x-gc-status-badge :status="$referral->status ?? 'Pending'" />
                     </div>
                 </div>
                 <div>
@@ -97,17 +89,12 @@
             </div>
             @if(!empty($referral->case_id))
                 <a href="{{ route('counselor.cases.show', $referral->case_id) }}"
-                   style="display: inline-block; background: #2563eb; color: white; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none;">
+                   style="display: inline-block; background: var(--gc-primary); color: white; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none;">
                     View Full Case Record
                 </a>
             @endif
         </div>
 
-        <div style="text-align: center; padding: 28px 0 8px 0;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-                GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant
-            </p>
-        </div>
 
     </div>
 </div>

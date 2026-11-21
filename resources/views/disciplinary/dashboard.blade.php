@@ -46,18 +46,18 @@
 
         {{-- 2. Stats --}}
         <div class="gc-stats">
-            <div class="gc-stat">
+            <a href="{{ route('disciplinary.referrals.index') }}" class="gc-stat" aria-label="Total Referrals: open the list">
                 <p class="gc-stat-label">Total Referrals</p>
                 <p class="gc-stat-value">{{ $totalCount }}</p>
-            </div>
-            <div class="gc-stat">
+            </a>
+            <a href="{{ route('disciplinary.referrals.index') }}" class="gc-stat" aria-label="Pending: open the list">
                 <p class="gc-stat-label">Pending</p>
                 <p class="gc-stat-value is-pending">{{ $pendingCount }}</p>
-            </div>
-            <div class="gc-stat">
+            </a>
+            <a href="{{ route('disciplinary.referrals.index') }}" class="gc-stat" aria-label="Resolved: open the list">
                 <p class="gc-stat-label">Resolved</p>
                 <p class="gc-stat-value is-done">{{ $resolvedCount }}</p>
-            </div>
+            </a>
         </div>
 
         {{-- 3. Table --}}
@@ -73,7 +73,6 @@
                             <tr>
                                 <th>Case No.</th>
                                 <th>Student</th>
-                                <th>Reason for Referral</th>
                                 <th>Status</th>
                                 <th>Date</th>
                                 <th class="gc-col-action">Action</th>
@@ -89,7 +88,6 @@
                                             <br><span class="gc-muted">{{ $ref->student_number }}</span>
                                         @endif
                                     </td>
-                                    <td class="gc-cell-clip">{{ \Illuminate\Support\Str::limit($ref->reason ?? '', 50) }}</td>
                                     <td>
                                         <x-gc-status-badge :status="$ref->status ?? 'Pending'"
                                                            :label="($ref->status ?? '') === 'Completed' ? 'Resolved' : null" />
@@ -97,16 +95,7 @@
                                     <td class="gc-nowrap">{{ \Carbon\Carbon::parse($ref->created_at)->format('M d, Y') }}</td>
                                     <td class="gc-col-action">
                                         <div class="gc-row-actions">
-                                            <a href="{{ route('disciplinary.referrals.show', $ref->id) }}" class="gc-btn gc-btn-secondary gc-btn-sm">View Details</a>
-                                            @if(($ref->status ?? '') !== 'Completed')
-                                                <form method="POST" action="{{ route('disciplinary.referrals.complete', $ref->id) }}" style="margin:0;"
-                                                      onsubmit="if (!confirm('Mark this referral as resolved?')) { return false; } this.querySelector('button').disabled = true;">
-                                                    @csrf
-                                                    <button type="submit" class="gc-btn gc-btn-primary gc-btn-sm">Mark Resolved</button>
-                                                </form>
-                                            @else
-                                                <span class="gc-muted">Done</span>
-                                            @endif
+                                            <a href="{{ route('disciplinary.referrals.show', $ref->id) }}" class="gc-btn gc-btn-primary gc-btn-sm">View Details</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -117,7 +106,6 @@
             @endif
         </div>
 
-        <p class="gc-footer">GuidanceCare System • STI College Global City • Centralized Student Support &amp; Privacy Compliant</p>
     </div>
 </div>
 @endsection

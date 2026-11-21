@@ -23,7 +23,9 @@ class CounselingRequestController extends Controller
             'year_section'         => 'required|string|max:100',
             'concern_type'         => 'required|string|max:100',
             'description'          => 'required|string|min:10',
-            'preferred_datetime'   => 'nullable|date|after:now',
+            'preferred_datetime'   => 'nullable|date|after_or_equal:tomorrow',
+        ], [
+            'preferred_datetime.after_or_equal' => 'Please choose a date starting tomorrow. Same-day requests are not allowed.',
         ]);
 
         DB::table('counseling_requests')->insert([

@@ -8,7 +8,7 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                 <div>
-                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">
                         Guidance Office
                     </p>
                     <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #111827;">
@@ -49,7 +49,7 @@
             </select>
 
             <button type="submit"
-                    style="background: #2563eb; color: white; padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                    style="background: var(--gc-primary); color: white; padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
                 Search
             </button>
 
@@ -87,27 +87,15 @@
                                 </td>
                                 <td style="padding: 14px 24px; color: #374151;">{{ $case->concern_type }}</td>
                                 <td style="padding: 14px 24px;">
-                                    @php
-                                        $st = $case->status ?? 'Pending';
-                                        $badge = match($st) {
-                                            'Ongoing' => 'background:#dbeafe;color:#1d4ed8;',
-                                            'Completed' => 'background:#dcfce7;color:#15803d;',
-                                            'For Follow-up' => 'background:#fef3c7;color:#b45309;',
-                                            'Referred' => 'background:#f3e8ff;color:#7c3aed;',
-                                            'Closed' => 'background:#f3f4f6;color:#4b5563;',
-                                            default => 'background:#f3f4f6;color:#6b7280;',
-                                        };
-                                    @endphp
-                                    <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; {{ $badge }}">
-                                        {{ $st }}
-                                    </span>
+                                    @php $st = $case->status ?? 'Pending'; @endphp
+                                    <x-gc-status-badge :status="$st" />
                                 </td>
                                 <td style="padding: 14px 24px; color: #6b7280;">
                                     {{ \Carbon\Carbon::parse($case->created_at)->format('M d, Y') }}
                                 </td>
                                 <td style="padding: 14px 24px; text-align: right; white-space: nowrap;">
                                     <a href="{{ route('counselor.cases.show', $case->id) }}"
-                                       style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500;">
+                                       style="display: inline-block; background: var(--gc-primary); color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500;">
                                         View Details
                                     </a>
                                 </td>
@@ -124,11 +112,6 @@
             </div>
         </div>
 
-        <div style="margin-top: 48px; padding: 24px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-                GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant
-            </p>
-        </div>
     </div>
 </div>
 @endsection

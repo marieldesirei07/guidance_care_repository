@@ -39,9 +39,7 @@
                     <div>
                         <dt style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">Status</dt>
                         <dd style="margin: 0;">
-                            <span style="display:inline-block; padding:4px 10px; border-radius:4px; font-size:12px; font-weight:500; background:#dbeafe; color:#1d4ed8;">
-                                {{ $appointment->status ?? 'Scheduled' }}
-                            </span>
+                            <x-gc-status-badge :status="$appointment->status ?? 'Scheduled'" />
                         </dd>
                     </div>
                     <div>
@@ -58,7 +56,7 @@
                     </div>
                     <div>
                         <dt style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">Case Status</dt>
-                        <dd style="margin: 0; color: #111827;">{{ $appointment->case_status ?? '—' }}</dd>
+                        <dd style="margin: 0;">@if($appointment->case_status)<x-gc-status-badge :status="$appointment->case_status" />@else — @endif</dd>
                     </div>
                 </dl>
 

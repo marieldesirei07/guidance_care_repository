@@ -7,7 +7,7 @@
         <div style="background:white; border:1px solid #e5e7eb; border-radius:12px; padding:28px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; gap:12px; flex-wrap:wrap;">
                 <div>
-                    <p style="margin:0 0 6px 0; font-size:11px; font-weight:600; color:#2563eb; text-transform:uppercase;">Referral Details</p>
+                    <p style="margin:0 0 6px 0; font-size:11px; font-weight:600; color:var(--gc-primary); text-transform:uppercase;">Referral Details</p>
                     <h1 style="margin:0 0 4px 0; font-size:22px; font-weight:700; color:#111827;">{{ $referral->student_name }}</h1>
                     <p style="margin:0; font-size:14px; color:#6b7280;">
                     @if($referral->student_number) {{ $referral->student_number }} @endif
@@ -31,7 +31,7 @@
                 </div>
                 <div>
                     <p style="margin:0 0 4px 0; font-size:12px; color:#6b7280;">Status</p>
-                    <p style="margin:0; font-size:14px; font-weight:500; color:#111827;">{{ $referral->status }}</p>
+                    <x-gc-status-badge :status="$referral->status" />
                 </div>
                 <div>
                     <p style="margin:0 0 4px 0; font-size:12px; color:#6b7280;">Submitted</p>
@@ -45,9 +45,6 @@
             </div>
         </div>
 
-        <div style="margin-top:32px; text-align:center;">
-            <p style="font-size:12px; color:#9ca3af; margin:0;">GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant</p>
-        </div>
     </div>
 </div>
 @endsection

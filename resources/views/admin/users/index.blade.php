@@ -7,9 +7,9 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                 <div>
-                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">Admin Portal</p>
+                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">Admin Portal</p>
                     <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #111827;">All Users</h1>
-                    <p style="margin: 0; font-size: 14px; color: #6b7280;">View, edit, or delete system accounts.</p>
+                    <p style="margin: 0; font-size: 14px; color: #6b7280;">View, edit, deactivate or reactivate system accounts.</p>
                 </div>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <a href="{{ route('admin.dashboard') }}"
@@ -18,7 +18,7 @@
                         ← Back to Dashboard
                     </a>
                     <a href="{{ route('admin.users.create') }}"
-                       style="display: inline-block; background: #2563eb; color: white; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none;">
+                       style="display: inline-block; background: var(--gc-primary); color: white; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none;">
                         + Add User
                     </a>
                 </div>
@@ -40,8 +40,8 @@
             @foreach($roles as $key => $label)
                 <a href="{{ route('admin.users.index', $key ? ['role' => $key] : []) }}"
                    style="display: inline-block; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none;
-                          border: 1px solid {{ ($role ?? '') === $key ? '#2563eb' : '#e5e7eb' }};
-                          background: {{ ($role ?? '') === $key ? '#2563eb' : '#ffffff' }};
+                          border: 1px solid {{ ($role ?? '') === $key ? 'var(--gc-primary)' : '#e5e7eb' }};
+                          background: {{ ($role ?? '') === $key ? 'var(--gc-primary)' : '#ffffff' }};
                           color: {{ ($role ?? '') === $key ? '#ffffff' : '#374151' }};">
                     {{ $label }}
                 </a>
@@ -81,7 +81,7 @@
                                     </td>
                                     <td style="padding: 14px 24px; text-align: right; white-space: nowrap;">
                                         <a href="{{ route('admin.users.edit', $u->id) }}"
-                                           style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; margin-right: 8px;">
+                                           style="display: inline-block; background: var(--gc-primary); color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; margin-right: 8px;">
                                             Edit
                                         </a>
                                         <form action="{{ route('admin.users.destroy', $u->id) }}" method="POST" style="display: inline;"
@@ -89,7 +89,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" title="{{ ($u->is_active ?? true) ? 'Deactivate' : 'Reactivate' }}"
-                                                    style="display: inline-block; padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; vertical-align: middle; {{ ($u->is_active ?? true) ? 'background:#fef3c7; color:#b45309;' : 'background:#dcfce7; color:#15803d;' }}">
+                                                    class="gc-btn gc-btn-sm {{ ($u->is_active ?? true) ? 'gc-btn-danger-outline' : 'gc-btn-success' }}">
                                                 {{ ($u->is_active ?? true) ? 'Deactivate' : 'Reactivate' }}
                                             </button>
                                         </form>
@@ -102,9 +102,6 @@
             @endif
         </div>
 
-        <div style="margin-top: 48px; padding: 24px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant</p>
-        </div>
     </div>
 </div>
 @endsection

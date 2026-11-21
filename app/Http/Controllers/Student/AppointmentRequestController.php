@@ -29,14 +29,14 @@ class AppointmentRequestController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'preferred_datetime' => 'required|date|after:now',
+            'preferred_datetime' => 'required|date|after_or_equal:tomorrow',
             'purpose'            => 'required|string|min:5|max:1000',
             'case_id'            => [
                 'nullable',
                 Rule::exists('cases', 'id')->where('student_id', Auth::id()),
             ],
         ], [
-            'preferred_datetime.after' => 'Please choose a date and time in the future.',
+            'preferred_datetime.after_or_equal' => 'Please choose a date starting tomorrow. Same-day requests are not allowed.',
             'case_id.exists'           => 'Please choose one of your own cases.',
         ]);
 

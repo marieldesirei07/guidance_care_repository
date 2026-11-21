@@ -6,7 +6,7 @@
 
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px;">
             <div style="margin-bottom: 24px;">
-                <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">
+                <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">
                     Teacher Portal
                 </p>
                 <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #111827;">
@@ -71,7 +71,7 @@
 
                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                     <button type="submit"
-                            style="background: #2563eb; color: white; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; border: none; cursor: pointer;">
+                            style="background: var(--gc-primary); color: white; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; border: none; cursor: pointer;">
                         Submit Referral
                     </button>
                     <a href="{{ route('teacher.dashboard') }}"
@@ -82,11 +82,6 @@
             </form>
         </div>
 
-        <div style="margin-top: 48px; padding: 24px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-                GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant
-            </p>
-        </div>
     </div>
 </div>
 @endsection

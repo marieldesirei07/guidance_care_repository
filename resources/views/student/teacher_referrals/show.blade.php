@@ -77,13 +77,7 @@
             @else
                 <p style="font-size: 14px; color: #6b7280; margin: 0;">
                     Your response:
-                    @if($response === 'Accepted')
-                        <strong style="color: #16a34a;">Accepted</strong>
-                    @elseif($response === 'Declined')
-                        <strong style="color: #dc2626;">Declined</strong>
-                    @else
-                        <strong style="color: #6b7280;">{{ $response }}</strong>
-                    @endif
+                    <x-gc-status-badge :status="$response" />
                 </p>
             @endif
 

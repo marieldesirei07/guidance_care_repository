@@ -10,12 +10,12 @@
 @endphp
 
 <div style="padding-top: 32px; padding-bottom: 40px;">
-    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                 <div>
-                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">Student Portal</p>
+                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">Student Portal</p>
                     <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #111827;">My Counseling Requests</h1>
                     <p style="margin: 0; font-size: 14px; color: #6b7280;">All guidance / counseling requests you submitted.</p>
                 </div>
@@ -53,17 +53,12 @@
                                     <td style="padding: 14px 24px; color: #374151;">{{ $req->concern_type }}</td>
                                     <td style="padding: 14px 24px; color: #6b7280;">{{ \Carbon\Carbon::parse($req->created_at)->format('M d, Y') }}</td>
                                     <td style="padding: 14px 24px;">
-                                        @php
-                                            $st = $req->status ?? 'Pending';
-                                            $stBadge = $st === 'Accepted'
-                                                ? 'background:#dcfce7; color:#15803d;'
-                                                : 'background:#fef3c7; color:#b45309;';
-                                        @endphp
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; {{ $stBadge }}">{{ $st }}</span>
+                                        @php $st = $req->status ?? 'Pending'; @endphp
+                                        <x-gc-status-badge :status="$st" />
                                     </td>
                                     <td style="padding: 14px 24px; text-align: right; white-space: nowrap;">
                                         <a href="{{ route('student.requests.show', $req->id) }}"
-                                           style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; margin-right: 8px;">
+                                           style="display: inline-block; background: var(--gc-primary); color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; margin-right: 8px;">
                                             View Details
                                         </a>
                                         @if(($req->status ?? '') === 'Pending')
@@ -71,10 +66,7 @@
                                               onsubmit="return confirm('Cancel this counseling request?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Cancel"
-                                                    style="display: inline-block; background: #fef3c7; color: #b45309; padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; vertical-align: middle;">
-                                                Cancel
-                                            </button>
+                                            <button type="submit" title="Cancel" class="gc-btn gc-btn-sm gc-btn-danger-outline">Cancel</button>
                                         </form>
                                         @endif
                                     </td>
@@ -86,9 +78,6 @@
             @endif
         </div>
 
-        <div style="margin-top: 48px; padding: 24px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant</p>
-        </div>
     </div>
 </div>
 @endsection

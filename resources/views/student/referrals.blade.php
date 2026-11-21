@@ -2,7 +2,7 @@
 
 @section('content')
 <div style="padding-top: 32px; padding-bottom: 40px;">
-    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -17,7 +17,7 @@
                         Accept or decline guidance referrals submitted by your teachers.
                     </p>
                 </div>
-                <a href="{{ route('student.dashboard') }}" style="font-size: 13px; color: #2563eb; text-decoration: none;">
+                <a href="{{ route('student.dashboard') }}" style="font-size: 13px; color: var(--gc-primary); text-decoration: none;">
                     ← Back to dashboard
                 </a>
             </div>

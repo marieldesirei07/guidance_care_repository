@@ -8,7 +8,7 @@
 
             {{-- Header without Back button --}}
             <div style="margin-bottom: 24px;">
-                <p style="font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; margin: 0 0 4px 0;">Guidance Office</p>
+                <p style="font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; margin: 0 0 4px 0;">Guidance Office</p>
                 <h1 style="font-size: 22px; font-weight: 700; color: #111827; margin: 0;">Create Guidance Case</h1>
                 <p style="font-size: 13px; color: #6b7280; margin: 4px 0 0 0;">Manually open a new case for a student</p>
             </div>
@@ -55,7 +55,7 @@
 
                 <div style="display:flex; gap:12px;">
                     <button type="submit"
-                            style="padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer;">
+                            style="padding:10px 20px; background:var(--gc-primary); color:white; border:none; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer;">
                         Create Case
                     </button>
                     <a href="{{ route('counselor.dashboard') }}"

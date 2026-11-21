@@ -1,47 +1,49 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <h2>Log in</h2>
+    <p class="gc-subtitle">Use your school email and password.</p>
 
-    <form method="POST" action="{{ route('login') }}">
+    {{-- Session status (e.g. after a password reset) --}}
+    @if (session('status'))
+        <div class="gc-flash gc-flash-success" style="margin-bottom: 16px;">{{ session('status') }}</div>
+    @endif
+
+    <form method="POST" action="{{ route('login') }}" novalidate
+          onsubmit="var b=this.querySelector('button[type=submit]');b.disabled=true;b.textContent='Logging in…';">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="gc-field">
+            <label for="email">Email</label>
+            <input id="email" class="gc-input @error('email') is-invalid @enderror" type="email" name="email"
+                   value="{{ old('email') }}" placeholder="name@globalcity.sti.edu.ph"
+                   required autofocus autocomplete="username"
+                   @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
+            @error('email')
+                <p class="gc-error" id="email-error">{{ $message }}</p>
+            @enderror
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="gc-field">
+            <label for="password">Password</label>
+            <input id="password" class="gc-input @error('password') is-invalid @enderror" type="password" name="password"
+                   required autocomplete="current-password"
+                   @error('password') aria-invalid="true" aria-describedby="password-error" @enderror>
+            @error('password')
+                <p class="gc-error" id="password-error">{{ $message }}</p>
+            @enderror
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+        <div class="gc-auth-row">
+            <label for="remember_me" class="gc-check">
+                <input id="remember_me" type="checkbox" name="remember">
+                <span>Remember me</span>
             </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
+                <a href="{{ route('password.request') }}">Forgot password?</a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
         </div>
+
+        <button type="submit" class="gc-btn gc-btn-primary gc-btn-block">
+            Log in
+        </button>
     </form>
 </x-guest-layout>

@@ -29,16 +29,7 @@
                 <div>
                     <dt style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">Status</dt>
                     <dd style="margin: 0;">
-                        @php
-                            $statusColor = match($request->status ?? 'Pending') {
-                                'Accepted', 'Ongoing', 'Completed' => 'background:#dcfce7; color:#166534;',
-                                'Pending' => 'background:#dbeafe; color:#1d4ed8;',
-                                default => 'background:#f3f4f6; color:#374151;',
-                            };
-                        @endphp
-                        <span style="display:inline-block; padding:4px 10px; border-radius:4px; font-size:12px; font-weight:500; {{ $statusColor }}">
-                            {{ $request->status ?? 'Pending' }}
-                        </span>
+                        <x-gc-status-badge :status="$request->status ?? 'Pending'" />
                     </dd>
                 </div>
                 <div>

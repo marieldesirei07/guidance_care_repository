@@ -8,7 +8,7 @@
             <div style="padding: 24px;">
 
                 <div style="margin-bottom: 24px;">
-                    <p style="font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; margin: 0 0 4px 0;">
+                    <p style="font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; margin: 0 0 4px 0;">
                         Student Portal
                     </p>
                     <h2 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0;">
@@ -61,9 +61,11 @@
                             Preferred Date & Time
                         </label>
                         <input type="datetime-local" name="preferred_datetime" required
-                               min="{{ now()->addHour()->format('Y-m-d\TH:i') }}"
-                               value="{{ old('preferred_datetime') }}"
+                               min="{{ now()->addDay()->startOfDay()->format('Y-m-d\TH:i') }}"
+                               value="{{ old('preferred_datetime') }}" aria-describedby="preferred_help"
                                style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 14px;">
+                        <p class="gc-help" id="preferred_help">You can only choose a date starting tomorrow. Same-day requests are not allowed.</p>
+                        @error('preferred_datetime')<p class="gc-help" style="color:#b91c1c;">{{ $message }}</p>@enderror
                     </div>
 
                     <div style="margin-bottom: 24px;">
@@ -77,7 +79,7 @@
 
                     <div style="display: flex; gap: 12px;">
                         <button type="submit"
-                                style="background: #2563eb; color: white; padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                                style="background: var(--gc-primary); color: white; padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
                             Submit Request
                         </button>
                         <a href="{{ route('student.dashboard') }}"

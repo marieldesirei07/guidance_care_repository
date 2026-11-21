@@ -21,7 +21,7 @@
 
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
-                <p style="font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 4px 0;">
+                <p style="font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 4px 0;">
                     Guidance Office
                 </p>
                 <h1 style="font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 4px 0;">
@@ -69,18 +69,10 @@
                                     @endif
                                 </td>
                                 <td style="padding: 14px 20px;">
-                                    @if(($ref->office ?? '') === 'Clinic')
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#dbeafe; color:#1d4ed8;">Clinic</span>
-                                    @else
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#fef3c7; color:#b45309;">Disciplinary</span>
-                                    @endif
+                                    <x-gc-office-badge :office="$ref->office ?? ''" />
                                 </td>
                                 <td style="padding: 14px 20px;">
-                                    @if(($ref->status ?? '') === 'Completed')
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#dbeafe; color:#1d4ed8;">Completed</span>
-                                    @else
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#fef3c7; color:#b45309;">{{ $ref->status ?? 'Pending' }}</span>
-                                    @endif
+                                    <x-gc-status-badge :status="$ref->status ?? 'Pending'" />
                                 </td>
                                 <td style="padding: 14px 20px; color: #6b7280;">
                                     {{ \Carbon\Carbon::parse($ref->created_at)->format('M d, Y') }}
@@ -88,17 +80,14 @@
                                 <td style="padding: 14px 20px; text-align: right;">
                                     <div style="display: inline-flex; align-items: center; gap: 8px;">
                                         <a href="{{ route('counselor.office_referrals.show', $ref->id) }}"
-                                           style="display:inline-block; background:#2563eb; color:white; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:500; text-decoration:none;">
+                                           style="display:inline-block; background:var(--gc-primary); color:white; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:500; text-decoration:none;">
                                             View Details
                                         </a>
                                         <form action="{{ route('counselor.office_referrals.destroy', $ref->id) }}" method="POST" style="display:inline; margin:0;"
                                               onsubmit="return confirm('Close this record? It is kept in the history, not erased.');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Close"
-                                                    style="display: inline-block; background: #f3f4f6; color: #374151; padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; vertical-align: middle;">
-                                                Close
-                                            </button>
+                                            <button type="submit" title="Close" class="gc-btn gc-btn-sm gc-btn-danger-outline">Close</button>
                                         </form>
                                     </div>
                                 </td>
@@ -115,11 +104,6 @@
             </div>
         </div>
 
-        <div style="margin-top: 48px; padding: 20px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-                GuidanceCare System • STI College Global City
-            </p>
-        </div>
     </div>
 </div>
 @endsection

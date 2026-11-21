@@ -29,6 +29,12 @@
         ->limit(10)
         ->get();
 
+    // Which office currently handles each listed case (latest office referral), for the Office column.
+    $caseOffice = \Illuminate\Support\Facades\DB::table('office_referrals')
+        ->whereIn('case_id', $cases->pluck('id'))
+        ->orderBy('created_at')
+        ->pluck('office', 'case_id');
+
     $officeReferrals = \Illuminate\Support\Facades\DB::table('office_referrals')
         ->leftJoin('cases', 'office_referrals.case_id', '=', 'cases.id')
         ->leftJoin('users', 'cases.student_id', '=', 'users.id')
@@ -52,7 +58,7 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                 <div>
-                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">
                         Guidance Counselor Portal · Full Access
                     </p>
                     <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #111827;">
@@ -63,7 +69,7 @@
                     </p>
                 </div>
                 <a href="{{ route('counselor.cases.create') }}"
-                   style="display: inline-block; background: #2563eb; color: white; padding: 10px 18px;
+                   style="display: inline-block; background: var(--gc-primary); color: white; padding: 10px 18px;
                           border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap;">
                     + Create Guidance Case
                 </a>
@@ -72,37 +78,29 @@
 
         {{-- Stats --}}
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
-            <a href="{{ route('counselor.pending') }}" style="text-decoration: none;">
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+            <a href="{{ route('counselor.pending') }}" class="gc-stat">
                     <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Pending Requests</p>
                     <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $pendingTotal }}</p>
-                </div>
-            </a>
-            <a href="{{ route('counselor.appointments') ?? '#' }}" style="text-decoration: none;">
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                </a>
+            <a href="{{ route('counselor.appointments') ?? '#' }}" class="gc-stat">
                     <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Today's Appointments</p>
                     <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $todayAppointments }}</p>
-                </div>
-            </a>
-            <a href="{{ route('counselor.cases') }}" style="text-decoration: none;">
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                </a>
+            <a href="{{ route('counselor.cases') }}" class="gc-stat">
                     <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Ongoing Cases</p>
                     <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $ongoingCases }}</p>
-                </div>
-            </a>
-            <a href="{{ route('counselor.office_referrals') }}" style="text-decoration: none;">
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                </a>
+            <a href="{{ route('counselor.office_referrals') }}" class="gc-stat">
                     <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Active Referrals</p>
                     <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $activeReferrals }}</p>
-                </div>
-            </a>
+                </a>
         </div>
 
         {{-- Counseling Cases --}}
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 24px; overflow: hidden;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #f3f4f6;">
                 <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Counseling Cases & Student Records</h3>
-                <a href="{{ route('counselor.cases') }}" style="font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 500;">View All →</a>
+                <a href="{{ route('counselor.cases') }}" style="font-size: 13px; color: var(--gc-primary); text-decoration: none; font-weight: 500;">View All →</a>
             </div>
 
             @if($cases->isEmpty())
@@ -131,25 +129,20 @@
                                         @endif
                                     </td>
                                     <td style="padding: 14px 24px; color: #374151;">{{ $case->concern_type }}</td>
-                                    <td style="padding: 14px 24px; color: #374151;">Guidance</td>
                                     <td style="padding: 14px 24px;">
-                                        @php
-                                            $status = $case->status ?? 'Pending';
-                                            $badge = match(true) {
-                                                $status === 'Ongoing' => 'background:#dbeafe; color:#1d4ed8;',
-                                                $status === 'Completed' => 'background:#dcfce7; color:#15803d;',
-                                                $status === 'For Follow-up' => 'background:#fef3c7; color:#b45309;',
-                                                $status === 'Referred' => 'background:#ede9fe; color:#6d28d9;',
-                                                default => 'background:#f3f4f6; color:#4b5563;',
-                                            };
-                                        @endphp
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; {{ $badge }}">
-                                            {{ $status }}
-                                        </span>
+                                        @if(($case->status ?? '') === 'Referred' && isset($caseOffice[$case->id]))
+                                            <x-gc-office-badge :office="$caseOffice[$case->id]" />
+                                        @else
+                                            <span style="color: #374151;">Guidance</span>
+                                        @endif
+                                    </td>
+                                    <td style="padding: 14px 24px;">
+                                        @php $status = $case->status ?? 'Pending'; @endphp
+                                        <x-gc-status-badge :status="$status" />
                                     </td>
                                     <td style="padding: 14px 24px; text-align: right;">
                                         <a href="{{ route('counselor.cases.show', $case->id) }}"
-                                           style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px;
+                                           style="display: inline-block; background: var(--gc-primary); color: white; padding: 6px 12px;
                                                   border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500;">
                                             View Details
                                         </a>
@@ -166,7 +159,7 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #f3f4f6;">
                 <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Active Clinic & Disciplinary Referrals (Guidance-Linked)</h3>
-                <a href="{{ route('counselor.office_referrals') }}" style="font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 500;">View All →</a>
+                <a href="{{ route('counselor.office_referrals') }}" style="font-size: 13px; color: var(--gc-primary); text-decoration: none; font-weight: 500;">View All →</a>
             </div>
 
             @if($officeReferrals->isEmpty())
@@ -203,21 +196,12 @@
                                         @endif
                                     </td>
                                     <td style="padding: 14px 24px;">
-                                        @php
-                                            $st = $ref->status ?? 'Pending';
-                                            $stBadge = match(true) {
-                                                $st === 'Completed' => 'background:#dcfce7; color:#15803d;',
-                                                $st === 'Pending' => 'background:#fef3c7; color:#b45309;',
-                                                default => 'background:#dbeafe; color:#1d4ed8;',
-                                            };
-                                        @endphp
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; {{ $stBadge }}">
-                                            {{ $st }}
-                                        </span>
+                                        @php $st = $ref->status ?? 'Pending'; @endphp
+                                        <x-gc-status-badge :status="$st" />
                                     </td>
                                     <td style="padding: 14px 24px; text-align: right;">
                                         <a href="{{ route('counselor.office_referrals.show', $ref->id) }}"
-                                           style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px;
+                                           style="display: inline-block; background: var(--gc-primary); color: white; padding: 6px 12px;
                                                   border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500;">
                                             View Details
                                         </a>
@@ -230,12 +214,6 @@
             @endif
         </div>
 
-        {{-- Footer --}}
-        <div style="margin-top: 48px; padding: 24px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-                GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant
-            </p>
-        </div>
 
     </div>
 </div>

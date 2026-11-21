@@ -5,77 +5,80 @@
     $referrals = $referrals ?? collect();
 @endphp
 
-<div style="padding-top: 32px; padding-bottom: 40px;">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+{{-- Full list for the Clinic: reason and the Mark Completed action live here and on the detail page
+     (the dashboard table stays compact). Need-to-know only: no case notes, no concern type. --}}
+<div class="gc-page">
+    <div class="gc-container gc-stack">
 
-        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div>
-                <p style="font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 4px 0;">
-                    School Clinic Portal
-                </p>
-                <h1 style="font-size: 22px; font-weight: 700; color: #111827; margin: 0;">
-                    All Clinic Referrals
-                </h1>
+        <div class="gc-card"><div class="gc-card-body">
+            <div class="gc-hero">
+                <div class="gc-hero-text">
+                    <p class="gc-eyebrow">School Clinic Portal</p>
+                    <h1 class="gc-title">All Clinic Referrals</h1>
+                    <p class="gc-subtitle">Every referral sent to your office by the Guidance Office.</p>
+                </div>
+                <div class="gc-actions">
+                    <a href="{{ route('clinic.dashboard') }}" class="gc-btn gc-btn-neutral">← Back to Dashboard</a>
+                </div>
             </div>
-            <a href="{{ route('clinic.dashboard') }}"
-               style="display: inline-block; background: #f3f4f6; color: #4b5563; padding: 8px 14px; border-radius: 8px; font-size: 13px; text-decoration: none; font-weight: 500;">
-                ← Back to Dashboard
-            </a>
-        </div>
+        </div></div>
 
         @if(session('success'))
-            <div style="margin-bottom: 16px; padding: 12px 16px; background: #dcfce7; color: #2563eb; border-radius: 8px;">
-                {{ session('success') }}
-            </div>
+            <div class="gc-flash gc-flash-success" role="status">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="gc-flash gc-flash-error" role="alert">{{ session('error') }}</div>
         @endif
 
-        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <div class="gc-card">
+            <div class="gc-table-wrap">
+                <table class="gc-table">
                     <thead>
-                        <tr style="background: #f9fafb; text-align: left;">
-                            <th style="padding: 12px 20px; color: #6b7280; font-size: 11px; font-weight: 600; text-transform: uppercase;">Referral ID</th>
-                            <th style="padding: 12px 20px; color: #6b7280; font-size: 11px; font-weight: 600; text-transform: uppercase;">Student</th>
-                            <th style="padding: 12px 20px; color: #6b7280; font-size: 11px; font-weight: 600; text-transform: uppercase;">Linked Case</th>
-                            <th style="padding: 12px 20px; color: #6b7280; font-size: 11px; font-weight: 600; text-transform: uppercase;">Status</th>
-                            <th style="padding: 12px 20px; color: #6b7280; font-size: 11px; font-weight: 600; text-transform: uppercase; text-align: right;">Action</th>
+                        <tr>
+                            <th>Referral ID</th>
+                            <th>Student</th>
+                            <th>Case No.</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th class="gc-col-action">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($referrals as $ref)
-                            <tr style="border-top: 1px solid #f3f4f6;">
-                                <td style="padding: 14px 20px; font-weight: 600; color: #2563eb;">
-                                    REF-{{ str_pad($ref->id, 4, '0', STR_PAD_LEFT) }}
-                                </td>
-                                <td style="padding: 14px 20px;">{{ $ref->student_name ?? 'Unknown' }}</td>
-                                <td style="padding: 14px 20px;">
-                                    <span style="color: #2563eb; font-weight: 500;">{{ $ref->case_number ?? '—' }}</span>
-                                </td>
-                                <td style="padding: 14px 20px;">
-                                    @if(($ref->status ?? '') === 'Completed')
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#dcfce7; color:#166534;">Completed</span>
-                                    @else
-                                        <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#fef3c7; color:#b45309;">{{ $ref->status ?? 'Pending' }}</span>
+                            <tr>
+                                <td class="gc-strong gc-nowrap">REF-{{ str_pad($ref->id, 4, '0', STR_PAD_LEFT) }}</td>
+                                <td>
+                                    <span class="gc-strong">{{ $ref->student_name ?? 'Unknown' }}</span>
+                                    @if(!empty($ref->student_number))
+                                        <br><span class="gc-muted">{{ $ref->student_number }}</span>
                                     @endif
                                 </td>
-                                <td style="padding: 14px 20px; text-align: right;">
-                                    <div style="display: inline-flex; align-items: center; gap: 8px;">
-                                        <a href="{{ route('clinic.referrals.show', $ref->id) }}"
-                                           style="display:inline-block; background:#2563eb; color:white; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:500; text-decoration:none;">
-                                            View Details
-                                        </a>
+                                <td class="gc-nowrap">{{ $ref->case_number ?? '—' }}</td>
+                                <td class="gc-cell-clip">{{ \Illuminate\Support\Str::limit($ref->reason ?? '', 70) }}</td>
+                                <td><x-gc-status-badge :status="$ref->status ?? 'Pending'" /></td>
+                                <td class="gc-nowrap">{{ \Carbon\Carbon::parse($ref->created_at)->format('M d, Y') }}</td>
+                                <td class="gc-col-action">
+                                    <div class="gc-row-actions">
+                                        <a href="{{ route('clinic.referrals.show', $ref->id) }}" class="gc-btn gc-btn-primary gc-btn-sm">View Details</a>
+                                        @if(!in_array($ref->status ?? '', ['Completed', 'Closed']))
+                                            <form method="POST" action="{{ route('clinic.referrals.complete', $ref->id) }}" style="margin:0;"
+                                                  onsubmit="if (!confirm('Mark this referral as completed?')) { return false; } this.querySelector('button').disabled = true;">
+                                                @csrf
+                                                <button type="submit" class="gc-btn gc-btn-success gc-btn-sm">Mark Completed</button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="5" style="padding: 40px 20px; text-align: center; color: #9ca3af;">No clinic referrals found.</td>
-                            </tr>
+                            <tr><td colspan="7" class="gc-empty">No clinic referrals yet.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
+
     </div>
 </div>
 @endsection

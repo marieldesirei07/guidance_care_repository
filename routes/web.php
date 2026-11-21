@@ -8,8 +8,9 @@ use App\Http\Controllers\Counselor\CaseController;
 use App\Http\Controllers\Counselor\AppointmentController;
 use App\Http\Controllers\Counselor\OfficeReferralController;
 
+// The home address opens the branded login (or the user's dashboard when already signed in)
 Route::get('/', function () {
-    return view('welcome');
+    return redirect(auth()->check() ? '/dashboard' : '/login');
 });
 
 require __DIR__.'/auth.php';
@@ -337,14 +338,12 @@ Route::middleware(['auth'])->group(function () {
             ]);
 
         if (!$done) {
-            return redirect()->route('clinic.dashboard')
-                ->with('error', 'This referral was already completed or is not assigned to the Clinic.');
+            return back()->with('error', 'This referral was already completed or is not assigned to the Clinic.');
         }
 
         \App\Support\ActivityLog::record('office_referral.completed', 'office_referrals', $id, ['office' => 'Clinic']);
 
-        return redirect()->route('clinic.dashboard')
-            ->with('success', 'Referral marked as completed.');
+        return back()->with('success', 'Referral marked as completed.');
     })->name('clinic.referrals.complete');
 
     // Optional list / show pages (only if you built those views/methods)
@@ -378,14 +377,12 @@ Route::middleware(['auth'])->group(function () {
             ]);
 
         if (!$done) {
-            return redirect()->route('disciplinary.dashboard')
-                ->with('error', 'This referral was already resolved or is not assigned to the Disciplinary Office.');
+            return back()->with('error', 'This referral was already resolved or is not assigned to the Disciplinary Office.');
         }
 
         \App\Support\ActivityLog::record('office_referral.completed', 'office_referrals', $id, ['office' => 'Disciplinary']);
 
-        return redirect()->route('disciplinary.dashboard')
-            ->with('success', 'Referral marked as resolved.');
+        return back()->with('success', 'Referral marked as resolved.');
     })->name('disciplinary.referrals.complete');
 
 

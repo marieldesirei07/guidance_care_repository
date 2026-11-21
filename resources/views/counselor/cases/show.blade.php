@@ -14,7 +14,7 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
                 <div>
-                    <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">
                         Case Details
                     </p>
                     <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #111827;">
@@ -41,7 +41,7 @@
                 </div>
                 <div>
                     <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Current Status</p>
-                    <p style="margin: 0; font-size: 14px; color: #111827;">{{ $case->status }}</p>
+                    <x-gc-status-badge :status="$case->status" />
                 </div>
                 <div>
                     <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Opened</p>
@@ -67,7 +67,7 @@
                     @endforeach
                 </select>
                 <button type="submit"
-                        style="background: #2563eb; color: white; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; border: none; cursor: pointer;">
+                        style="background: var(--gc-primary); color: white; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; border: none; cursor: pointer;">
                     Update Status
                 </button>
             </form>
@@ -78,14 +78,14 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
                 <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Appointments</h3>
                 <a href="{{ route('counselor.appointments.create', $case->id) }}"
-                   style="display: inline-block; background: #f7b900; color: white; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none;">
+                   style="display: inline-block; background: #fff; color: var(--gc-primary); border: 1px solid #bfdbfe; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none;">
                     + New Appointment
                 </a>
             </div>
             @forelse($appointments as $apt)
                 <div style="border-top: 1px solid #f3f4f6; padding: 12px 0; font-size: 14px; color: #374151;">
                     {{ \Carbon\Carbon::parse($apt->appointment_datetime)->format('M d, Y h:i A') }}
-                    — {{ $apt->status ?? 'Scheduled' }}
+                    <span style="margin-left:6px;"><x-gc-status-badge :status="$apt->status ?? 'Scheduled'" /></span>
                     @if(!empty($apt->location))
                         <span style="color: #6b7280;"> · {{ $apt->location }}</span>
                     @endif
@@ -100,7 +100,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
                 <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Case Notes</h3>
                 <a href="{{ route('counselor.office_referral.create', $case->id) }}"
-                   style="display: inline-block; background: #f7b900; color: white; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none;">
+                   style="display: inline-block; background: #fff; color: var(--gc-primary); border: 1px solid #bfdbfe; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none;">
                     Office Referral
                 </a>
             </div>
@@ -124,19 +124,13 @@
                               placeholder="Write your counseling note here..."
                               style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; margin-bottom: 12px; box-sizing: border-box;"></textarea>
                     <button type="submit"
-                            style="background: #2563eb; color: white; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; border: none; cursor: pointer;">
+                            style="background: var(--gc-primary); color: white; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; border: none; cursor: pointer;">
                         Save Note
                     </button>
                 </form>
             </div>
         </div>
 
-        {{-- Footer --}}
-        <div style="margin-top: 32px; padding: 24px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-                GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant
-            </p>
-        </div>
 
     </div>
 </div>

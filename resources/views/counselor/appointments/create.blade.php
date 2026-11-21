@@ -22,7 +22,7 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
 
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-                <p style="margin: 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">
+                <p style="margin: 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">
                     Schedule Appointment
                 </p>
                 <a href="{{ route('counselor.cases.show', $case->id) }}"
@@ -97,7 +97,7 @@
                         Cancel
                     </a>
                     <button type="submit"
-                            style="background: #2563eb; color: white; padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                            style="background: var(--gc-primary); color: white; padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
                         Schedule Appointment
                     </button>
                 </div>

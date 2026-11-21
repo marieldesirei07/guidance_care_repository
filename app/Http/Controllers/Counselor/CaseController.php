@@ -520,19 +520,16 @@ class CaseController extends Controller
         $query = DB::table('referrals')
             ->leftJoin('users as students', 'referrals.student_id', '=', 'students.id')
             ->leftJoin('users as teachers', 'referrals.teacher_id', '=', 'teachers.id')
-            ->leftJoin('courses', 'referrals.course_id', '=', 'courses.id')
             ->select(
                 'referrals.*',
                 DB::raw('COALESCE(referrals.student_name, students.name) as student_name'),
                 DB::raw('COALESCE(referrals.student_number, students.student_number) as student_number'),
                 'teachers.name as teacher_name',
-                'courses.level as education_level'
+                DB::raw('NULL as education_level')
             )
             ->where('referrals.status', 'Pending');
 
-        if ($level === 'Tertiary' || $level === 'SHS') {
-            $query->where('courses.level', $level);
-        }
+        // The courses table is not part of the Supabase schema, so there is no level filter.
 
         $referrals = $query->orderBy('referrals.created_at', 'desc')->get();
 
@@ -545,18 +542,15 @@ class CaseController extends Controller
 
         $query = DB::table('counseling_requests')
             ->leftJoin('users', 'counseling_requests.student_id', '=', 'users.id')
-            ->leftJoin('courses', 'users.course_id', '=', 'courses.id')
             ->select(
                 'counseling_requests.*',
                 DB::raw('COALESCE(counseling_requests.student_name, users.name) as student_name'),
                 DB::raw('COALESCE(counseling_requests.student_number, users.student_number) as student_number'),
-                'courses.level as education_level'
+                DB::raw('NULL as education_level')
             )
             ->where('counseling_requests.status', 'Pending');
 
-        if ($level === 'Tertiary' || $level === 'SHS') {
-            $query->where('courses.level', $level);
-        }
+        // The courses table is not part of the Supabase schema, so there is no level filter.
 
         $requests = $query->orderBy('counseling_requests.created_at', 'desc')->get();
 

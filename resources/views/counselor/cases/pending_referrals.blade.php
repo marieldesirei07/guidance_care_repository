@@ -10,7 +10,7 @@
 
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
-                <p style="font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 4px 0;">
+                <p style="font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 4px 0;">
                     Guidance Counselor Portal
                 </p>
                 <h1 style="font-size: 22px; font-weight: 700; color: #111827; margin: 0;">
@@ -30,7 +30,7 @@
         @endif
 
         <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-            <span style="background:#2563eb; color:white; padding:6px 14px; border-radius:8px; font-size:13px; font-weight:500;">All</span>
+            <span style="background:var(--gc-primary); color:white; padding:6px 14px; border-radius:8px; font-size:13px; font-weight:500;">All</span>
             <span style="background:white; color:#4b5563; padding:6px 14px; border-radius:8px; font-size:13px; border:1px solid #e5e7eb;">Tertiary</span>
             <span style="background:white; color:#4b5563; padding:6px 14px; border-radius:8px; font-size:13px; border:1px solid #e5e7eb;">SHS</span>
         </div>
@@ -60,11 +60,8 @@
                                 <td style="padding: 14px 20px;">{{ $referral->teacher_name ?? '—' }}</td>
                                 <td style="padding: 14px 20px;">{{ $referral->concern_type }}</td>
                                 <td style="padding: 14px 20px;">
-                                    @php
-                                        $sr = $referral->student_response ?? 'Pending';
-                                        $srStyle = $sr === 'Accepted' ? 'background:#dcfce7; color:#166534;' : 'background:#fef3c7; color:#b45309;';
-                                    @endphp
-                                    <span style="display:inline-block; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:500; {{ $srStyle }}">{{ $sr }}</span>
+                                    @php $sr = $referral->student_response ?? 'Pending'; @endphp
+                                    <x-gc-status-badge :status="$sr" />
                                 </td>
                                 <td style="padding: 14px 20px; color: #6b7280;">
                                     {{ \Carbon\Carbon::parse($referral->created_at)->format('M d, Y') }}
@@ -72,17 +69,14 @@
                                 <td style="padding: 14px 20px; text-align: right;">
                                     <div style="display: inline-flex; align-items: center; gap: 8px;">
                                         <a href="{{ route('counselor.pending.referral', $referral->id) }}"
-                                           style="display:inline-block; background:#2563eb; color:white; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:500; text-decoration:none;">
+                                           style="display:inline-block; background:var(--gc-primary); color:white; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:500; text-decoration:none;">
                                             View Details
                                         </a>
                                         <form action="{{ route('counselor.pending.referrals.destroy', $referral->id) }}" method="POST" style="display:inline; margin:0;"
                                               onsubmit="return confirm('Close this record? It is kept in the history, not erased.');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Close"
-                                                    style="display: inline-block; background: #f3f4f6; color: #374151; padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; vertical-align: middle;">
-                                                Close
-                                            </button>
+                                            <button type="submit" title="Close" class="gc-btn gc-btn-sm gc-btn-danger-outline">Close</button>
                                         </form>
                                     </div>
                                 </td>

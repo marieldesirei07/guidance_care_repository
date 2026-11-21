@@ -71,18 +71,18 @@
 
         {{-- 2. Stats --}}
         <div class="gc-stats">
-            <div class="gc-stat">
+            <a href="{{ route('student.appointments.index') }}" class="gc-stat" aria-label="Upcoming Appointments: open the list">
                 <p class="gc-stat-label">Upcoming Appointments</p>
                 <p class="gc-stat-value is-active">{{ $upcomingCount }}</p>
-            </div>
-            <div class="gc-stat">
+            </a>
+            <a href="{{ route('student.requests.index') }}" class="gc-stat" aria-label="Pending Requests: open the list">
                 <p class="gc-stat-label">Pending Requests</p>
                 <p class="gc-stat-value is-pending">{{ $pendingRequestCount }}</p>
-            </div>
-            <div class="gc-stat">
+            </a>
+            <a href="{{ route('student.teacher_referrals') }}" class="gc-stat" aria-label="Referrals Awaiting Your Response: open the list">
                 <p class="gc-stat-label">Referrals Awaiting Your Response</p>
                 <p class="gc-stat-value">{{ $awaitingReferralCount }}</p>
-            </div>
+            </a>
         </div>
 
         {{-- 3a. My Appointments --}}
@@ -159,7 +159,6 @@
             @endif
         </div>
 
-        <p class="gc-footer">GuidanceCare System • STI College Global City • Centralized Student Support &amp; Privacy Compliant</p>
     </div>
 </div>
 @endsection

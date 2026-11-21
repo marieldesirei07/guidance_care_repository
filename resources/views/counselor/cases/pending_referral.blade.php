@@ -19,7 +19,7 @@
 
             <!-- Top bar -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px;">
-                <p style="margin: 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">
+                <p style="margin: 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">
                     Teacher Referral
                 </p>
                 <a href="{{ route('counselor.pending') }}"
@@ -63,7 +63,7 @@
 
             <p style="margin: 0 0 20px 0; font-size: 13px; color: #6b7280;">
                 Student response:
-                <strong style="color:#111827;">{{ $referral->student_response ?? 'Pending' }}</strong>
+                <x-gc-status-badge :status="$referral->student_response ?? 'Pending'" />
             </p>
 
             @if(($referral->status ?? '') === 'Pending')
@@ -71,7 +71,7 @@
                     <form action="{{ route('counselor.cases.fromReferral', $referral->id) }}" method="POST">
                         @csrf
                         <button type="submit"
-                                style="background:#2563eb; color:white; padding:10px 18px; border:none; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer;">
+                                style="background:var(--gc-primary); color:white; padding:10px 18px; border:none; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer;">
                             Create Case
                         </button>
                     </form>

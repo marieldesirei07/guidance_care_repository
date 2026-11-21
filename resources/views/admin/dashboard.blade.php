@@ -21,12 +21,12 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                 <div>
-                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">Admin Portal</p>
+                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">Admin Portal</p>
                     <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #111827;">User Management</h1>
                     <p style="margin: 0; font-size: 14px; color: #6b7280;">Manage system users and roles for GuidanceCare.</p>
                 </div>
                 <a href="{{ route('admin.users.create') }}"
-                   style="display: inline-block; background: #2563eb; color: white; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none;">
+                   style="display: inline-block; background: var(--gc-primary); color: white; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none;">
                     + Add User
                 </a>
             </div>
@@ -40,30 +40,30 @@
         @endif
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 20px;">
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Total Users</p>
+            <a href="{{ route('admin.users.index') }}" class="gc-stat" aria-label="Total Users: open the list">
+                <p class="gc-stat-label">Total Users</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $totalUsers }}</p>
-            </div>
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Students</p>
-                <p style="margin: 0; font-size: 28px; font-weight: 700; color: #2563eb;">{{ $counts['student'] }}</p>
-            </div>
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Teachers</p>
+            </a>
+            <a href="{{ route('admin.users.index', ['role' => 'student']) }}" class="gc-stat" aria-label="Students: open the list">
+                <p class="gc-stat-label">Students</p>
+                <p style="margin: 0; font-size: 28px; font-weight: 700; color: var(--gc-primary);">{{ $counts['student'] }}</p>
+            </a>
+            <a href="{{ route('admin.users.index', ['role' => 'teacher']) }}" class="gc-stat" aria-label="Teachers: open the list">
+                <p class="gc-stat-label">Teachers</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $counts['teacher'] }}</p>
-            </div>
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Counselors</p>
+            </a>
+            <a href="{{ route('admin.users.index', ['role' => 'counselor']) }}" class="gc-stat" aria-label="Counselors: open the list">
+                <p class="gc-stat-label">Counselors</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $counts['counselor'] }}</p>
-            </div>
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Clinic</p>
+            </a>
+            <a href="{{ route('admin.users.index', ['role' => 'clinic']) }}" class="gc-stat" aria-label="Clinic: open the list">
+                <p class="gc-stat-label">Clinic</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $counts['clinic'] }}</p>
-            </div>
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Disciplinary</p>
+            </a>
+            <a href="{{ route('admin.users.index', ['role' => 'disciplinary']) }}" class="gc-stat" aria-label="Disciplinary: open the list">
+                <p class="gc-stat-label">Disciplinary</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $counts['disciplinary'] }}</p>
-            </div>
+            </a>
             <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
                 <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Cases</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $totalCases }}</p>
@@ -74,7 +74,7 @@
             <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827;">Quick Actions</h3>
             <div style="display: flex; flex-wrap: wrap; gap: 12px;">
                 <a href="{{ route('admin.users.index') }}"
-                   style="display: inline-block; background: #2563eb; color: white; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none;">
+                   style="display: inline-block; background: var(--gc-primary); color: white; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none;">
                     View All Users
                 </a>
                 <a href="{{ route('admin.users.create') }}"
@@ -84,9 +84,6 @@
             </div>
         </div>
 
-        <div style="margin-top: 48px; padding: 24px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant</p>
-        </div>
     </div>
 </div>
 @endsection

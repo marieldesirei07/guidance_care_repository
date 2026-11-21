@@ -36,7 +36,7 @@
                 </div>
                 <div>
                     <p class="gc-stat-label">Status</p>
-                    <p style="margin:4px 0 0;"><span class="gc-badge {{ $appointmentRequest->status === 'Pending' ? 'gc-badge-pending' : ($appointmentRequest->status === 'Scheduled' ? 'gc-badge-active' : 'gc-badge-danger') }}">{{ $appointmentRequest->status }}</span></p>
+                    <p style="margin:4px 0 0;"><x-gc-status-badge :status="$appointmentRequest->status" /></p>
                 </div>
                 <div>
                     <p class="gc-stat-label">Related Case</p>

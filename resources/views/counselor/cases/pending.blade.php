@@ -8,7 +8,7 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                 <div>
-                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 600; color: var(--gc-primary); text-transform: uppercase; letter-spacing: 0.05em;">
                         Guidance Counselor Portal
                     </p>
                     <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #111827;">
@@ -41,7 +41,7 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 20px; overflow: hidden;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #f3f4f6;">
                 <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Teacher Referrals</h3>
-                <a href="{{ route('counselor.referrals') }}" style="font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 500;">View All →</a>
+                <a href="{{ route('counselor.referrals') }}" style="font-size: 13px; color: var(--gc-primary); text-decoration: none; font-weight: 500;">View All →</a>
             </div>
             @if($referrals->isEmpty())
                 <p style="padding: 24px; margin: 0; font-size: 14px; color: #9ca3af;">No pending teacher referrals.</p>
@@ -73,7 +73,7 @@
                                     <td style="padding: 14px 24px; color: #6b7280;">{{ \Carbon\Carbon::parse($referral->created_at)->format('M d, Y') }}</td>
                                     <td style="padding: 14px 24px; text-align: right; white-space: nowrap;">
                                         <a href="{{ route('counselor.pending.referral', $referral->id) }}"
-                                           style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; margin-right: 6px;">
+                                           style="display: inline-block; background: var(--gc-primary); color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; margin-right: 6px;">
                                             View Details
                                         </a>
                                         <form action="{{ route('counselor.pending.referrals.destroy', $referral->id) }}"
@@ -82,10 +82,7 @@
                                               onsubmit="return confirm('Close this record? It is kept in the history, not erased.');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Close"
-                                                    style="display: inline-block; background: #f3f4f6; color: #374151; padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; vertical-align: middle;">
-                                                Close
-                                            </button>
+                                            <button type="submit" title="Close" class="gc-btn gc-btn-sm gc-btn-danger-outline">Close</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -100,7 +97,7 @@
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #f3f4f6;">
                 <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Student Counseling Requests</h3>
-                <a href="{{ route('counselor.requests') }}" style="font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 500;">View All →</a>
+                <a href="{{ route('counselor.requests') }}" style="font-size: 13px; color: var(--gc-primary); text-decoration: none; font-weight: 500;">View All →</a>
             </div>
             @if($requests->isEmpty())
                 <p style="padding: 24px; margin: 0; font-size: 14px; color: #9ca3af;">No pending student requests.</p>
@@ -136,7 +133,7 @@
                                     <td style="padding: 14px 24px; color: #6b7280;">{{ \Carbon\Carbon::parse($request->created_at)->format('M d, Y') }}</td>
                                     <td style="padding: 14px 24px; text-align: right; white-space: nowrap;">
                                         <a href="{{ route('counselor.pending.request', $request->id) }}"
-                                           style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; margin-right: 6px;">
+                                           style="display: inline-block; background: var(--gc-primary); color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; margin-right: 6px;">
                                             View Details
                                         </a>
                                         <form action="{{ route('counselor.pending.requests.destroy', $request->id) }}"
@@ -145,10 +142,7 @@
                                               onsubmit="return confirm('Close this record? It is kept in the history, not erased.');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Close"
-                                                    style="display: inline-block; background: #f3f4f6; color: #374151; padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; vertical-align: middle;">
-                                                Close
-                                            </button>
+                                            <button type="submit" title="Close" class="gc-btn gc-btn-sm gc-btn-danger-outline">Close</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -191,7 +185,7 @@
                                     <td style="padding: 14px 24px; color: #6b7280;">{{ \Carbon\Carbon::parse($ar->created_at)->format('M d, Y') }}</td>
                                     <td style="padding: 14px 24px; text-align: right; white-space: nowrap;">
                                         <a href="{{ route('counselor.appointment_requests.show', $ar->id) }}"
-                                           style="display: inline-block; background: #2563eb; color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500;">
+                                           style="display: inline-block; background: var(--gc-primary); color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500;">
                                             View Details
                                         </a>
                                     </td>
@@ -203,12 +197,6 @@
             @endif
         </div>
 
-        {{-- Footer --}}
-        <div style="margin-top: 48px; padding: 24px 0; text-align: center;">
-            <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-                GuidanceCare System • STI College Global City • Centralized Student Support & Privacy Compliant
-            </p>
-        </div>
 
     </div>
 </div>
