@@ -40,30 +40,30 @@
         @endif
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 20px;">
-            <a href="{{ route('admin.users.index') }}" class="gc-stat" aria-label="Total Users: open the list">
+            <div class="gc-stat">
                 <p class="gc-stat-label">Total Users</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $totalUsers }}</p>
-            </a>
-            <a href="{{ route('admin.users.index', ['role' => 'student']) }}" class="gc-stat" aria-label="Students: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Students</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: var(--gc-primary);">{{ $counts['student'] }}</p>
-            </a>
-            <a href="{{ route('admin.users.index', ['role' => 'teacher']) }}" class="gc-stat" aria-label="Teachers: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Teachers</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $counts['teacher'] }}</p>
-            </a>
-            <a href="{{ route('admin.users.index', ['role' => 'counselor']) }}" class="gc-stat" aria-label="Counselors: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Counselors</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $counts['counselor'] }}</p>
-            </a>
-            <a href="{{ route('admin.users.index', ['role' => 'clinic']) }}" class="gc-stat" aria-label="Clinic: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Clinic</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $counts['clinic'] }}</p>
-            </a>
-            <a href="{{ route('admin.users.index', ['role' => 'disciplinary']) }}" class="gc-stat" aria-label="Disciplinary: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Disciplinary</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $counts['disciplinary'] }}</p>
-            </a>
+            </div>
             <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px;">
                 <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Cases</p>
                 <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $totalCases }}</p>

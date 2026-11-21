@@ -45,18 +45,18 @@
 
         {{-- Stats --}}
         <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:20px;">
-            <a href="{{ route('teacher.referrals.index') }}" class="gc-stat" aria-label="Total Referrals: open the list">
+            <div class="gc-stat">
                 <p class="gc-stat-label">Total Referrals</p>
                 <p style="margin:0; font-size:28px; font-weight:700; color:#111827;">{{ $total }}</p>
-            </a>
-            <a href="{{ route('teacher.referrals.index') }}" class="gc-stat" aria-label="Pending: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Pending</p>
                 <p style="margin:0; font-size:28px; font-weight:700; color:#d97706;">{{ $pending }}</p>
-            </a>
-            <a href="{{ route('teacher.referrals.index') }}" class="gc-stat" aria-label="Accepted: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Accepted</p>
                 <p style="margin:0; font-size:28px; font-weight:700; color:#059669;">{{ $accepted }}</p>
-            </a>
+            </div>
         </div>
 
         {{-- My Referrals --}}

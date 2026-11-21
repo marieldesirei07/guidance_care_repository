@@ -76,11 +76,32 @@ class AppointmentController extends Controller
         $studentId = $case->student_id ?? null;
     }
 
+    // Block double booking: the counselor or the student already has an active
+    // appointment at this exact date and time.
+    $when = \Illuminate\Support\Carbon::parse($validated['appointment_datetime'])->format('Y-m-d H:i:s');
+
+    $clash = DB::table('appointments')
+        ->where('appointment_datetime', $when)
+        ->whereIn('status', ['Scheduled', 'Rescheduled'])
+        ->where(function ($q) use ($studentId) {
+            $q->where('counselor_id', auth()->id());
+            if ($studentId) {
+                $q->orWhere('student_id', $studentId);
+            }
+        })
+        ->exists();
+
+    if ($clash) {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'appointment_datetime' => 'There is already an appointment at this date and time for you or this student. Please choose another time.',
+        ]);
+    }
+
     $appointmentId = DB::table('appointments')->insertGetId([
         'case_id'              => $validated['case_id'],
         'student_id'           => $studentId,
         'counselor_id'         => auth()->id(),
-        'appointment_datetime' => $validated['appointment_datetime'],
+        'appointment_datetime' => $when,
         'location'             => $validated['location'],
         'purpose'              => $validated['purpose'],
         'status'               => 'Scheduled',

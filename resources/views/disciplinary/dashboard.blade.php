@@ -46,18 +46,18 @@
 
         {{-- 2. Stats --}}
         <div class="gc-stats">
-            <a href="{{ route('disciplinary.referrals.index') }}" class="gc-stat" aria-label="Total Referrals: open the list">
+            <div class="gc-stat">
                 <p class="gc-stat-label">Total Referrals</p>
                 <p class="gc-stat-value">{{ $totalCount }}</p>
-            </a>
-            <a href="{{ route('disciplinary.referrals.index') }}" class="gc-stat" aria-label="Pending: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Pending</p>
                 <p class="gc-stat-value is-pending">{{ $pendingCount }}</p>
-            </a>
-            <a href="{{ route('disciplinary.referrals.index') }}" class="gc-stat" aria-label="Resolved: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Resolved</p>
                 <p class="gc-stat-value is-done">{{ $resolvedCount }}</p>
-            </a>
+            </div>
         </div>
 
         {{-- 3. Table --}}

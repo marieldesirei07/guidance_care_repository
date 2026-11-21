@@ -4,7 +4,9 @@
 @php
     $pendingReferrals = \Illuminate\Support\Facades\DB::table('referrals')->where('status', 'Pending')->count();
     $pendingRequests  = \Illuminate\Support\Facades\DB::table('counseling_requests')->where('status', 'Pending')->count();
-    $pendingTotal     = $pendingReferrals + $pendingRequests;
+    $pendingAppointmentRequests = \Illuminate\Support\Facades\DB::table('appointment_requests')->where('status', 'Pending')->count();
+    // Everything in the Pending queue whose current status is Pending (same count as the sidebar badge)
+    $pendingTotal     = $pendingReferrals + $pendingRequests + $pendingAppointmentRequests;
 
     $ongoingCases = \Illuminate\Support\Facades\DB::table('cases')
         ->whereIn('status', ['Ongoing', 'For Follow-up', 'Pending'])
@@ -78,22 +80,22 @@
 
         {{-- Stats --}}
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
-            <a href="{{ route('counselor.pending') }}" class="gc-stat">
+            <div class="gc-stat">
                     <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Pending Requests</p>
                     <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $pendingTotal }}</p>
-                </a>
-            <a href="{{ route('counselor.appointments') ?? '#' }}" class="gc-stat">
+                </div>
+            <div class="gc-stat">
                     <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Today's Appointments</p>
                     <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $todayAppointments }}</p>
-                </a>
-            <a href="{{ route('counselor.cases') }}" class="gc-stat">
+                </div>
+            <div class="gc-stat">
                     <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Ongoing Cases</p>
                     <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $ongoingCases }}</p>
-                </a>
-            <a href="{{ route('counselor.office_referrals') }}" class="gc-stat">
+                </div>
+            <div class="gc-stat">
                     <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Active Referrals</p>
                     <p style="margin: 0; font-size: 28px; font-weight: 700; color: #111827;">{{ $activeReferrals }}</p>
-                </a>
+                </div>
         </div>
 
         {{-- Counseling Cases --}}

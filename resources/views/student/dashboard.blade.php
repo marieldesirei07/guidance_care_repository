@@ -71,18 +71,18 @@
 
         {{-- 2. Stats --}}
         <div class="gc-stats">
-            <a href="{{ route('student.appointments.index') }}" class="gc-stat" aria-label="Upcoming Appointments: open the list">
+            <div class="gc-stat">
                 <p class="gc-stat-label">Upcoming Appointments</p>
                 <p class="gc-stat-value is-active">{{ $upcomingCount }}</p>
-            </a>
-            <a href="{{ route('student.requests.index') }}" class="gc-stat" aria-label="Pending Requests: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Pending Requests</p>
                 <p class="gc-stat-value is-pending">{{ $pendingRequestCount }}</p>
-            </a>
-            <a href="{{ route('student.teacher_referrals') }}" class="gc-stat" aria-label="Referrals Awaiting Your Response: open the list">
+            </div>
+            <div class="gc-stat">
                 <p class="gc-stat-label">Referrals Awaiting Your Response</p>
                 <p class="gc-stat-value">{{ $awaitingReferralCount }}</p>
-            </a>
+            </div>
         </div>
 
         {{-- 3a. My Appointments --}}
