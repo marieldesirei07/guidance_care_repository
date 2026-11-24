@@ -30,8 +30,8 @@
             <div class="gc-hero">
                 <div class="gc-hero-text">
                     <p class="gc-eyebrow">Disciplinary Office Portal</p>
-                    <h1 class="gc-title">Behavioral Referrals</h1>
-                    <p class="gc-subtitle">Behavioral referrals from the Guidance Office. Limited access — confidential details are protected.</p>
+                    <h1 class="gc-title">Disciplinary Referrals</h1>
+                    <p class="gc-subtitle">Disciplinary referrals from the Guidance Office. Limited access — confidential details are protected.</p>
                 </div>
                 <span class="gc-chip-privacy">Privacy Protected</span>
             </div>

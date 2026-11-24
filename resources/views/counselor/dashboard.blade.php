@@ -109,7 +109,9 @@
                 <p style="padding: 24px; margin: 0; font-size: 14px; color: #9ca3af;">No cases yet.</p>
             @else
                 <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed;">
+                        {{-- Same column widths in both dashboard tables so the Office and Status pills line up. --}}
+                        <colgroup><col style="width: 14%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 16%;"><col style="width: 14%;"><col style="width: 16%;"></colgroup>
                         <thead>
                             <tr style="background: #f9fafb; text-align: left;">
                                 <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Case ID</th>
@@ -135,7 +137,7 @@
                                         @if(($case->status ?? '') === 'Referred' && isset($caseOffice[$case->id]))
                                             <x-gc-office-badge :office="$caseOffice[$case->id]" />
                                         @else
-                                            <span style="color: #374151;">Guidance</span>
+                                            <x-gc-office-badge office="Guidance" />
                                         @endif
                                     </td>
                                     <td style="padding: 14px 24px;">
@@ -168,7 +170,9 @@
                 <p style="padding: 24px; margin: 0; font-size: 14px; color: #9ca3af;">No active office referrals yet.</p>
             @else
                 <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed;">
+                        {{-- Same column widths in both dashboard tables so the Office and Status pills line up. --}}
+                        <colgroup><col style="width: 14%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 16%;"><col style="width: 14%;"><col style="width: 16%;"></colgroup>
                         <thead>
                             <tr style="background: #f9fafb; text-align: left;">
                                 <th style="padding: 12px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Referral ID</th>
@@ -191,11 +195,7 @@
                                     </td>
                                     <td style="padding: 14px 24px; color: #374151;">{{ $ref->case_number ?? '—' }}</td>
                                     <td style="padding: 14px 24px;">
-                                        @if(($ref->office ?? '') === 'Clinic')
-                                            <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#dbeafe; color:#1d4ed8;">Clinic</span>
-                                        @else
-                                            <span style="display:inline-block; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#fef3c7; color:#b45309;">Disciplinary</span>
-                                        @endif
+                                        <x-gc-office-badge :office="$ref->office ?? ''" />
                                     </td>
                                     <td style="padding: 14px 24px;">
                                         @php $st = $ref->status ?? 'Pending'; @endphp

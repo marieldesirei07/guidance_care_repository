@@ -1,8 +1,9 @@
 @props(['office' => ''])
 
-{{-- Which office a referral goes to. Outlined pill so it is never confused with a status badge. --}}
+{{-- Which office a referral goes to. Same pill shape as the status badge, with its own colours. --}}
 @php
     $kind = match ($office) {
+        'Guidance'     => 'guidance',
         'Clinic'       => 'clinic',
         'Disciplinary' => 'disciplinary',
         default        => 'neutral',

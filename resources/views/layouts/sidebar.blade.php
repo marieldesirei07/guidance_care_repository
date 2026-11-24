@@ -76,7 +76,7 @@
         ],
         'disciplinary' => [
             ['Dashboard', '/disciplinary/dashboard', 'home', ['disciplinary/dashboard']],
-            ['Behavioral referrals', '/disciplinary/referrals', 'flag', ['disciplinary/referrals*'], $gcCounts['office']],
+            ['Disciplinary referrals', '/disciplinary/referrals', 'flag', ['disciplinary/referrals*'], $gcCounts['office']],
         ],
         'admin' => [
             ['Dashboard', '/admin/dashboard', 'home', ['admin/dashboard']],

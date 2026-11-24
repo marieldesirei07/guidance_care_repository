@@ -5,8 +5,8 @@
     $referrals = $referrals ?? collect();
 @endphp
 
-{{-- Full list for the Disciplinary Office: reason and the Mark Resolved action live here and on the detail page
-     (the dashboard table stays compact). Need-to-know only: no case notes, no concern type. --}}
+{{-- Full list for the Disciplinary Office: the reason and the mark-resolved action are on the detail page only
+     (same as the other portals: lists stay short, details hold the content). Need-to-know only: no case notes, no concern type. --}}
 <div class="gc-page">
     <div class="gc-container gc-stack">
 
@@ -38,7 +38,6 @@
                             <th>Referral ID</th>
                             <th>Student</th>
                             <th>Case No.</th>
-                            <th>Reason</th>
                             <th>Status</th>
                             <th>Date</th>
                             <th class="gc-col-action">Action</th>
@@ -55,24 +54,16 @@
                                     @endif
                                 </td>
                                 <td class="gc-nowrap">{{ $ref->case_number ?? '—' }}</td>
-                                <td class="gc-cell-clip">{{ \Illuminate\Support\Str::limit($ref->reason ?? '', 70) }}</td>
                                 <td><x-gc-status-badge :status="$ref->status ?? 'Pending'" :label="($ref->status ?? '') === 'Completed' ? 'Resolved' : null" /></td>
                                 <td class="gc-nowrap">{{ \Carbon\Carbon::parse($ref->created_at)->format('M d, Y') }}</td>
                                 <td class="gc-col-action">
                                     <div class="gc-row-actions">
                                         <a href="{{ route('disciplinary.referrals.show', $ref->id) }}" class="gc-btn gc-btn-primary gc-btn-sm">View Details</a>
-                                        @if(!in_array($ref->status ?? '', ['Completed', 'Closed']))
-                                            <form method="POST" action="{{ route('disciplinary.referrals.complete', $ref->id) }}" style="margin:0;"
-                                                  onsubmit="if (!confirm('Mark this referral as resolved?')) { return false; } this.querySelector('button').disabled = true;">
-                                                @csrf
-                                                <button type="submit" class="gc-btn gc-btn-success gc-btn-sm">Mark Resolved</button>
-                                            </form>
-                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="gc-empty">No disciplinary referrals yet.</td></tr>
+                            <tr><td colspan="6" class="gc-empty">No disciplinary referrals yet.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

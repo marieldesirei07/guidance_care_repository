@@ -29,11 +29,6 @@
             </div>
         @endif
 
-        <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-            <span style="background:var(--gc-primary); color:white; padding:6px 14px; border-radius:8px; font-size:13px; font-weight:500;">All</span>
-            <span style="background:white; color:#4b5563; padding:6px 14px; border-radius:8px; font-size:13px; border:1px solid #e5e7eb;">Tertiary</span>
-            <span style="background:white; color:#4b5563; padding:6px 14px; border-radius:8px; font-size:13px; border:1px solid #e5e7eb;">SHS</span>
-        </div>
 
         <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
             <div style="overflow-x: auto;">

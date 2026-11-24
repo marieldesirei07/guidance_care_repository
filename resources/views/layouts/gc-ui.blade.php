@@ -101,10 +101,12 @@
     .gc-badge-done     { background: #dcfce7; color: #15803d; }   /* Completed, Closed, Resolved */
     .gc-badge-danger   { background: #fee2e2; color: #b91c1c; }   /* Declined, Cancelled */
     .gc-badge-neutral  { background: #f3f4f6; color: #4b5563; }
-    /* Office tag (Clinic / Disciplinary): outlined so it never looks like a status */
-    .gc-office-clinic       { background: #f0fdfa; color: #0f766e; border-color: #99f6e4; }
-    .gc-office-disciplinary { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
-    .gc-office-neutral      { background: #fff; color: #4b5563; border-color: #e5e7eb; }
+    /* Office tag (Guidance / Clinic / Disciplinary): same pill shape as a status, but its own colours
+       (teal / orange / slate) so an office is never mistaken for a status. */
+    .gc-office-guidance     { background: #e2e8f0; color: #334155; }
+    .gc-office-clinic       { background: #ccfbf1; color: #0f766e; }
+    .gc-office-disciplinary { background: #ffedd5; color: #c2410c; }
+    .gc-office-neutral      { background: #f3f4f6; color: #4b5563; }
     .gc-chip-privacy   { display: inline-block; padding: 8px 12px; border-radius: 8px; background: #dcfce7; color: #15803d; font-size: 12px; font-weight: 500; white-space: nowrap; }
 
     /* ---- Feedback + footer ---- */
