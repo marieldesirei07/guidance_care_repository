@@ -515,8 +515,6 @@ class CaseController extends Controller
 
     public function pendingReferralsAll(Request $request)
     {
-        $level = $request->query('level', 'all');
-
         $query = DB::table('referrals')
             ->leftJoin('users as students', 'referrals.student_id', '=', 'students.id')
             ->leftJoin('users as teachers', 'referrals.teacher_id', '=', 'teachers.id')
@@ -524,37 +522,29 @@ class CaseController extends Controller
                 'referrals.*',
                 DB::raw('COALESCE(referrals.student_name, students.name) as student_name'),
                 DB::raw('COALESCE(referrals.student_number, students.student_number) as student_number'),
-                'teachers.name as teacher_name',
-                DB::raw('NULL as education_level')
+                'teachers.name as teacher_name'
             )
             ->where('referrals.status', 'Pending');
 
-        // The courses table is not part of the Supabase schema, so there is no level filter.
-
         $referrals = $query->orderBy('referrals.created_at', 'desc')->get();
 
-        return view('counselor.cases.pending_referrals', compact('referrals', 'level'));
+        return view('counselor.cases.pending_referrals', compact('referrals'));
     }
 
     public function pendingRequestsAll(Request $request)
     {
-        $level = $request->query('level', 'all');
-
         $query = DB::table('counseling_requests')
             ->leftJoin('users', 'counseling_requests.student_id', '=', 'users.id')
             ->select(
                 'counseling_requests.*',
                 DB::raw('COALESCE(counseling_requests.student_name, users.name) as student_name'),
-                DB::raw('COALESCE(counseling_requests.student_number, users.student_number) as student_number'),
-                DB::raw('NULL as education_level')
+                DB::raw('COALESCE(counseling_requests.student_number, users.student_number) as student_number')
             )
             ->where('counseling_requests.status', 'Pending');
 
-        // The courses table is not part of the Supabase schema, so there is no level filter.
-
         $requests = $query->orderBy('counseling_requests.created_at', 'desc')->get();
 
-        return view('counselor.cases.pending_requests', compact('requests', 'level'));
+        return view('counselor.cases.pending_requests', compact('requests'));
     }
 
     // Counseling records are never erased. "Delete" closes them; notes, appointments and
