@@ -233,4 +233,58 @@
         .gc-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         .gc-stat { padding: 16px; }
     }
+    /* Show / hide password: an eye button inside every password box (added by the script below) */
+    .gc-pw { position: relative; display: block; width: 100%; }
+    .gc-pw > input { padding-right: 48px !important; width: 100%; box-sizing: border-box; }
+    .gc-pw-btn { position: absolute; top: 0; right: 0; height: 100%; min-height: 40px; width: 44px; display: inline-flex; align-items: center; justify-content: center;
+                 border: 0; background: transparent; color: #6b7280; cursor: pointer; border-radius: 0 8px 8px 0; padding: 0; }
+    .gc-pw-btn:hover { color: var(--gc-primary, #0038A8); }
+    .gc-pw-btn:focus-visible { outline: 2px solid var(--gc-primary, #0038A8); outline-offset: -2px; }
+    .gc-pw-btn svg { width: 20px; height: 20px; }
+    .gc-pw > input::-ms-reveal, .gc-pw > input::-ms-clear { display: none; }
 </style>
+
+{{--
+    Show / hide password: wraps every password box in the system (login, change password,
+    admin add and edit user) and adds an eye button. Passwords start hidden and are hidden
+    again when the form is submitted. Supports ISO 9241-110 error tolerance.
+--}}
+<script>
+    (function () {
+        var EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+        var EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.9 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+        function setup() {
+            document.querySelectorAll('input[type="password"]').forEach(function (input) {
+                if (input.dataset.gcPw) return;
+                input.dataset.gcPw = '1';
+                var wrap = document.createElement('span');
+                wrap.className = 'gc-pw';
+                input.parentNode.insertBefore(wrap, input);
+                wrap.appendChild(input);
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'gc-pw-btn';
+                btn.setAttribute('aria-label', 'Show password');
+                btn.setAttribute('aria-pressed', 'false');
+                btn.innerHTML = EYE;
+                btn.addEventListener('click', function () {
+                    var show = input.type === 'password';
+                    input.type = show ? 'text' : 'password';
+                    btn.innerHTML = show ? EYE_OFF : EYE;
+                    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+                    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+                    input.focus();
+                });
+                wrap.appendChild(btn);
+                if (input.form && !input.form.dataset.gcPwHide) {
+                    input.form.dataset.gcPwHide = '1';
+                    input.form.addEventListener('submit', function () {
+                        input.form.querySelectorAll('.gc-pw > input').forEach(function (i) { i.type = 'password'; });
+                    });
+                }
+            });
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+        else setup();
+    })();
+</script>
